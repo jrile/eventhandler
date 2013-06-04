@@ -24,7 +24,11 @@
       </widget>
      </item>
      <item row="0" column="1">
-      <widget class="QLineEdit" name="serial"/>
+      <widget class="QLineEdit" name="serial">
+       <property name="maxLength">
+        <number>30</number>
+       </property>
+      </widget>
      </item>
      <item row="1" column="0">
       <widget class="QLabel" name="drive_name_2">
@@ -34,7 +38,11 @@
       </widget>
      </item>
      <item row="1" column="1">
-      <widget class="QLineEdit" name="drive_name"/>
+      <widget class="QLineEdit" name="drive_name">
+       <property name="maxLength">
+        <number>50</number>
+       </property>
+      </widget>
      </item>
      <item row="3" column="0">
       <widget class="QCheckBox" name="date_check">
@@ -57,7 +65,11 @@
       </widget>
      </item>
      <item row="2" column="1">
-      <widget class="QLineEdit" name="lineEdit_3"/>
+      <widget class="QLineEdit" name="username">
+       <property name="maxLength">
+        <number>20</number>
+       </property>
+      </widget>
      </item>
      <item row="5" column="0">
       <widget class="QLabel" name="label_4">
@@ -67,7 +79,11 @@
       </widget>
      </item>
      <item row="5" column="1">
-      <widget class="QLineEdit" name="filename"/>
+      <widget class="QLineEdit" name="filename">
+       <property name="maxLength">
+        <number>100</number>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>

@@ -6,7 +6,7 @@ from PyQt4 import QtCore, QtGui
 from Database import *
 from CSSystem import *
 from search_ui import *
-from selecthdd_ui import *
+from select_ui import *
 from folder_view_ui import *
 from backup_ui import *
 from location_ui import *
@@ -69,17 +69,17 @@ class Search(QtGui.QDialog):
         QtGui.QWidget.__init__(self,parent)
         self.ui = Ui_Search()
         self.ui.setupUi(self)
-        self.ui.drivename.setFocus()
+        self.ui.drive_name.setFocus()
      
     def getResults(self):
         """Given input, searchs database for a hard drive match."""
         serial = str(self.ui.serial.text())
-        drive_name = str(self.ui.drivename.text())
-        date_check = self.ui.dateCheck.checkState()
+        drive_name = str(self.ui.drive_name.text())
+        date_check = self.ui.date_check.checkState()
         before_date = str(self.ui.before.text())
         after_date = str(self.ui.after.text())
         username = str(self.ui.username.text())
-        query = "select serial, drive_name, date_added, username, (select count(*) from copies where serial = a.serial) from master_drive a where "
+        query = "select serial, drive_name, date_added, username, is_backup_of from master_drive a where "
         if serial:
             query += "serial like \'%s\' AND " % serial
         if drive_name:

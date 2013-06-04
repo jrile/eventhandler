@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'ui/main.ui'
 #
-# Created: Tue Jun  4 15:16:08 2013
+# Created: Tue Jun  4 16:18:34 2013
 #      by: PyQt4 UI code generator 4.6.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -68,6 +68,7 @@ class Ui_MainWindow(object):
         self.menubar.setObjectName("menubar")
         self.menuFile = QtGui.QMenu(self.menubar)
         self.menuFile.setObjectName("menuFile")
+
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QtGui.QStatusBar(MainWindow)
         self.statusbar.setObjectName("statusbar")
@@ -92,6 +93,7 @@ class Ui_MainWindow(object):
         self.actionEdit_User.setObjectName("actionEdit_User")
         self.actionRefresh = QtGui.QAction(MainWindow)
         self.actionRefresh.setObjectName("actionRefresh")
+
         self.menuFile.addAction(self.actionAdd_HDD)
         self.menuFile.addAction(self.actionBrowse)
         self.menuFile.addAction(self.actionSearch)
@@ -100,7 +102,9 @@ class Ui_MainWindow(object):
         self.menuFile.addSeparator()
         self.menuFile.addAction(self.actionAbout)
         self.menuFile.addAction(self.actionQuit)
+
         self.menubar.addAction(self.menuFile.menuAction())
+ 
 
         self.retranslateUi(MainWindow)
         QtCore.QObject.connect(self.actionAdd_HDD, QtCore.SIGNAL("triggered()"), MainWindow.add_hard_drive)
@@ -111,9 +115,6 @@ class Ui_MainWindow(object):
         QtCore.QObject.connect(self.actionAbout, QtCore.SIGNAL("triggered()"), MainWindow.about)
         QtCore.QObject.connect(self.tableWidget, QtCore.SIGNAL("cellEntered(int,int)"), MainWindow.drive_selected)
         QtCore.QObject.connect(self.tableWidget, QtCore.SIGNAL("cellDoubleClicked(int,int)"), MainWindow.drive_selected)
-        QtCore.QObject.connect(self.actionAdd_User, QtCore.SIGNAL("triggered()"), MainWindow.addUser)
-        QtCore.QObject.connect(self.actionDelete_User, QtCore.SIGNAL("triggered()"), MainWindow.delUser)
-        QtCore.QObject.connect(self.actionEdit_User, QtCore.SIGNAL("triggered()"), MainWindow.editUser)
         QtCore.QObject.connect(self.actionRefresh, QtCore.SIGNAL("triggered()"), MainWindow.refresh)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
@@ -126,6 +127,7 @@ class Ui_MainWindow(object):
         self.tableWidget.horizontalHeaderItem(3).setText(QtGui.QApplication.translate("MainWindow", "Username", None, QtGui.QApplication.UnicodeUTF8))
         self.tableWidget.horizontalHeaderItem(4).setText(QtGui.QApplication.translate("MainWindow", "Copies Of", None, QtGui.QApplication.UnicodeUTF8))
         self.menuFile.setTitle(QtGui.QApplication.translate("MainWindow", "&File", None, QtGui.QApplication.UnicodeUTF8))
+
         self.actionAdd_HDD.setText(QtGui.QApplication.translate("MainWindow", "&Add Harddrive(s)", None, QtGui.QApplication.UnicodeUTF8))
         self.actionAdd_HDD.setToolTip(QtGui.QApplication.translate("MainWindow", "Add Harddrive(s)", None, QtGui.QApplication.UnicodeUTF8))
         self.actionAdd_HDD.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+A", None, QtGui.QApplication.UnicodeUTF8))
@@ -137,9 +139,31 @@ class Ui_MainWindow(object):
         self.actionQuit.setText(QtGui.QApplication.translate("MainWindow", "&Quit", None, QtGui.QApplication.UnicodeUTF8))
         self.actionQuit.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+Q", None, QtGui.QApplication.UnicodeUTF8))
         self.actionAbout.setText(QtGui.QApplication.translate("MainWindow", "About", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionRefresh.setText(QtGui.QApplication.translate("MainWindow", "Refresh", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionRefresh.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+R", None, QtGui.QApplication.UnicodeUTF8))
+
+        
+    def addAdminTools(self, MainWindow):
+        self.menuAdmin = QtGui.QMenu(self.menubar)
+        self.menuAdmin.setTitle(QtGui.QApplication.translate("MainWindow", "Admin", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionAdd_User_2 = QtGui.QAction(MainWindow)
+        self.actionAdd_User_2.setObjectName("actionAdd_User_2")
+        self.actionEdit_User_2 = QtGui.QAction(MainWindow)
+        self.actionEdit_User_2.setObjectName("actionEdit_User_2")
+        self.actionDelete_User_2 = QtGui.QAction(MainWindow)
+        self.actionDelete_User_2.setObjectName("actionDelete_User_2")
+        self.menuAdmin.setObjectName("menuAdmin")
+        self.menubar.addAction(self.menuAdmin.menuAction())
+        self.menuAdmin.addAction(self.actionAdd_User_2)
+        self.menuAdmin.addAction(self.actionEdit_User_2)
+        self.menuAdmin.addAction(self.actionDelete_User_2)
+        QtCore.QObject.connect(self.actionAdd_User_2, QtCore.SIGNAL("triggered()"), MainWindow.addUser)
+        QtCore.QObject.connect(self.actionDelete_User_2, QtCore.SIGNAL("triggered()"), MainWindow.delUser)
+        QtCore.QObject.connect(self.actionEdit_User_2, QtCore.SIGNAL("triggered()"), MainWindow.editUser)
+        self.actionAdd_User_2.setText(QtGui.QApplication.translate("MainWindow", "Add User", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionEdit_User_2.setText(QtGui.QApplication.translate("MainWindow", "Edit User", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionDelete_User_2.setText(QtGui.QApplication.translate("MainWindow", "Delete User", None, QtGui.QApplication.UnicodeUTF8))
         self.actionAdd_User.setText(QtGui.QApplication.translate("MainWindow", "Add User", None, QtGui.QApplication.UnicodeUTF8))
         self.actionDelete_User.setText(QtGui.QApplication.translate("MainWindow", "Delete User", None, QtGui.QApplication.UnicodeUTF8))
         self.actionEdit_User.setText(QtGui.QApplication.translate("MainWindow", "Edit User", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionRefresh.setText(QtGui.QApplication.translate("MainWindow", "Refresh", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionRefresh.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+R", None, QtGui.QApplication.UnicodeUTF8))
 

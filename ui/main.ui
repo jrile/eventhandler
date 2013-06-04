@@ -138,7 +138,16 @@
     <addaction name="actionAbout"/>
     <addaction name="actionQuit"/>
    </widget>
+   <widget class="QMenu" name="menuAdmin">
+    <property name="title">
+     <string>Admin</string>
+    </property>
+    <addaction name="actionAdd_User_2"/>
+    <addaction name="actionEdit_User_2"/>
+    <addaction name="actionDelete_User_2"/>
+   </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuAdmin"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionAdd_HDD">
@@ -207,6 +216,21 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+R</string>
+   </property>
+  </action>
+  <action name="actionAdd_User_2">
+   <property name="text">
+    <string>Add User</string>
+   </property>
+  </action>
+  <action name="actionEdit_User_2">
+   <property name="text">
+    <string>Edit User</string>
+   </property>
+  </action>
+  <action name="actionDelete_User_2">
+   <property name="text">
+    <string>Delete User</string>
    </property>
   </action>
  </widget>
@@ -341,7 +365,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>actionAdd_User</sender>
+   <sender>actionAdd_User_2</sender>
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
    <slot>addUser()</slot>
@@ -357,7 +381,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>actionDelete_User</sender>
+   <sender>actionDelete_User_2</sender>
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
    <slot>delUser()</slot>
@@ -373,7 +397,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>actionEdit_User</sender>
+   <sender>actionEdit_User_2</sender>
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
    <slot>editUser()</slot>
