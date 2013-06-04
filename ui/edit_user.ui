@@ -24,7 +24,11 @@
       </widget>
      </item>
      <item row="0" column="1">
-      <widget class="QLineEdit" name="username"/>
+      <widget class="QLineEdit" name="username">
+       <property name="maxLength">
+        <number>20</number>
+       </property>
+      </widget>
      </item>
      <item row="2" column="0">
       <widget class="QLabel" name="label_2">
@@ -34,7 +38,17 @@
       </widget>
      </item>
      <item row="2" column="1">
-      <widget class="QLineEdit" name="password"/>
+      <widget class="QLineEdit" name="password">
+       <property name="styleSheet">
+        <string notr="true">QLineEdit{background:#CCCCCC;}</string>
+       </property>
+       <property name="maxLength">
+        <number>20</number>
+       </property>
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+      </widget>
      </item>
      <item row="3" column="0">
       <widget class="QLabel" name="label_3">
@@ -44,7 +58,17 @@
       </widget>
      </item>
      <item row="3" column="1">
-      <widget class="QLineEdit" name="name"/>
+      <widget class="QLineEdit" name="name">
+       <property name="styleSheet">
+        <string notr="true">QLineEdit{background:#CCCCCC;}</string>
+       </property>
+       <property name="maxLength">
+        <number>40</number>
+       </property>
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+      </widget>
      </item>
      <item row="4" column="0">
       <widget class="QLabel" name="label_4">
@@ -61,8 +85,14 @@
          <height>16777215</height>
         </size>
        </property>
+       <property name="styleSheet">
+        <string notr="true">QLineEdit{background:#CCCCCC;}</string>
+       </property>
        <property name="maxLength">
         <number>1</number>
+       </property>
+       <property name="readOnly">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
@@ -105,8 +135,8 @@
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>248</x>
-     <y>254</y>
+     <x>257</x>
+     <y>230</y>
     </hint>
     <hint type="destinationlabel">
      <x>157</x>
@@ -121,8 +151,8 @@
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>316</x>
-     <y>260</y>
+     <x>310</x>
+     <y>230</y>
     </hint>
     <hint type="destinationlabel">
      <x>286</x>
@@ -130,5 +160,24 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>check</sender>
+   <signal>clicked()</signal>
+   <receiver>EditUser</receiver>
+   <slot>check()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>150</x>
+     <y>66</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>159</x>
+     <y>119</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
+ <slots>
+  <slot>check()</slot>
+ </slots>
 </ui>

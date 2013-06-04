@@ -125,7 +125,7 @@ class Ui_MainWindow(object):
         self.tableWidget.horizontalHeaderItem(1).setText(QtGui.QApplication.translate("MainWindow", "Drive Name", None, QtGui.QApplication.UnicodeUTF8))
         self.tableWidget.horizontalHeaderItem(2).setText(QtGui.QApplication.translate("MainWindow", "Date Added", None, QtGui.QApplication.UnicodeUTF8))
         self.tableWidget.horizontalHeaderItem(3).setText(QtGui.QApplication.translate("MainWindow", "Username", None, QtGui.QApplication.UnicodeUTF8))
-        self.tableWidget.horizontalHeaderItem(4).setText(QtGui.QApplication.translate("MainWindow", "Copies Of", None, QtGui.QApplication.UnicodeUTF8))
+        self.tableWidget.horizontalHeaderItem(4).setText(QtGui.QApplication.translate("MainWindow", "Copy Of", None, QtGui.QApplication.UnicodeUTF8))
         self.menuFile.setTitle(QtGui.QApplication.translate("MainWindow", "&File", None, QtGui.QApplication.UnicodeUTF8))
 
         self.actionAdd_HDD.setText(QtGui.QApplication.translate("MainWindow", "&Add Harddrive(s)", None, QtGui.QApplication.UnicodeUTF8))

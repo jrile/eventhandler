@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'ui/edit_user.ui'
 #
-# Created: Tue Jun  4 15:48:48 2013
+# Created: Tue Jun  4 16:42:33 2013
 #      by: PyQt4 UI code generator 4.6.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -21,18 +21,25 @@ class Ui_EditUser(object):
         self.label.setObjectName("label")
         self.gridLayout.addWidget(self.label, 0, 0, 1, 1)
         self.username = QtGui.QLineEdit(EditUser)
+        self.username.setMaxLength(20)
         self.username.setObjectName("username")
         self.gridLayout.addWidget(self.username, 0, 1, 1, 1)
         self.label_2 = QtGui.QLabel(EditUser)
         self.label_2.setObjectName("label_2")
         self.gridLayout.addWidget(self.label_2, 2, 0, 1, 1)
         self.password = QtGui.QLineEdit(EditUser)
+        self.password.setStyleSheet("QLineEdit{background:#CCCCCC;}")
+        self.password.setMaxLength(20)
+        self.password.setReadOnly(True)
         self.password.setObjectName("password")
         self.gridLayout.addWidget(self.password, 2, 1, 1, 1)
         self.label_3 = QtGui.QLabel(EditUser)
         self.label_3.setObjectName("label_3")
         self.gridLayout.addWidget(self.label_3, 3, 0, 1, 1)
         self.name = QtGui.QLineEdit(EditUser)
+        self.name.setStyleSheet("QLineEdit{background:#CCCCCC;}")
+        self.name.setMaxLength(40)
+        self.name.setReadOnly(True)
         self.name.setObjectName("name")
         self.gridLayout.addWidget(self.name, 3, 1, 1, 1)
         self.label_4 = QtGui.QLabel(EditUser)
@@ -40,7 +47,9 @@ class Ui_EditUser(object):
         self.gridLayout.addWidget(self.label_4, 4, 0, 1, 1)
         self.level = QtGui.QLineEdit(EditUser)
         self.level.setMaximumSize(QtCore.QSize(35, 16777215))
+        self.level.setStyleSheet("QLineEdit{background:#CCCCCC;}")
         self.level.setMaxLength(1)
+        self.level.setReadOnly(True)
         self.level.setObjectName("level")
         self.gridLayout.addWidget(self.level, 4, 1, 1, 1)
         self.check = QtGui.QPushButton(EditUser)
@@ -58,6 +67,7 @@ class Ui_EditUser(object):
         self.retranslateUi(EditUser)
         QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL("accepted()"), EditUser.accept)
         QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL("rejected()"), EditUser.reject)
+        QtCore.QObject.connect(self.check, QtCore.SIGNAL("clicked()"), EditUser.check)
         QtCore.QMetaObject.connectSlotsByName(EditUser)
 
     def retranslateUi(self, EditUser):

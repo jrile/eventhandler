@@ -107,7 +107,7 @@
         </column>
         <column>
          <property name="text">
-          <string>Copies Of</string>
+          <string>Copy Of</string>
          </property>
         </column>
        </widget>

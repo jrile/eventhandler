@@ -79,7 +79,16 @@ class Search(QtGui.QDialog):
         before_date = str(self.ui.before.text())
         after_date = str(self.ui.after.text())
         username = str(self.ui.username.text())
-        query = "select serial, drive_name, date_added, username, is_backup_of from master_drive a where "
+        filename = str(self.ui.filename.text())
+        if not serial and not drive_name and not date_check and not username and not filename:
+            # user has not inputted anything. Main window will display an error message.
+            return None
+        query = "select serial, drive_name, date_added, username, is_backup_of from master_drive "
+        if filename:
+            query += "inner join data_folders inner join data_files "
+        query += "where "
+        if filename:
+            query += "file_name like \'%s\' AND " % filename
         if serial:
             query += "serial like \'%s\' AND " % serial
         if drive_name:
@@ -88,12 +97,9 @@ class Search(QtGui.QDialog):
             query += "date_added between \'%s\' and \'%s\' AND " % (after_date,  before_date)
         if username:
             query += "username like \'%s\'" % username
-        elif (serial or drive_name or date_check):
+        elif (serial or drive_name or date_check or filename):
             # get rid of unnecessary "AND"
             query = query[:-5]
-        if not serial and not drive_name and not date_check and not username:
-            # user has not inputted anything. Main window will display an error message.
-            return None
         else:
             # we have some information to search with.
             # send query to get search results and display in main window if query is sucessful.
@@ -203,7 +209,7 @@ class BackupCopy(QtCore.QThread):
         self.size = 0
         source_mount_point = system.getMountPoint(source)
         dest_mount_point = system.getMountPoint(dest)
-        self.total_size = int(commands.getoutput('du -bs ' + source_mount_point).split()[0])
+        self.total_size = system.getDirSize(source_mount_point)
         QtCore.QThread.__init__(self)
         self.copy(source_mount_point, dest_mount_point)
         db.addHardDrive(system.getSerial(dest), username,  dest_mount_point, system.getSerial(source), source_mount_point)
@@ -214,8 +220,8 @@ class BackupCopy(QtCore.QThread):
         def copy2(src, dst): 
             print "Copying: " + dst
             shutil.copy2_old(src, dst) 
-            print self.size, "/",   self.total_size, "bytes\t\t",  '%.1f' % ((float(self.size)/float(self.total_size))*100) + "%\n"
             self.size += os.path.getsize(src)
+            print self.size, "/",   self.total_size, "bytes\t\t",  '%.1f' % ((float(self.size)/float(self.total_size))*100) + "%\n"
         shutil.copy2 = copy2 
         for item in os.listdir(source):
             s = os.path.join(source, item)
@@ -226,7 +232,9 @@ class BackupCopy(QtCore.QThread):
                 except OSError, e:
                     if e.errno != 17: # 17 = file already exists (comes up with Trash folder often)
                         raise              # ignore if 17, else raise it.
-                    print "Copying: " + e.filename + " already exists on destination hard drive."
+                    print "Copying: " + e.filename + " - path already exists on destination hard drive!!"
+                    self.size += system.getDirSize(d)
+                    print self.size, "/",   self.total_size, "bytes\t\t",  '%.1f' % ((float(self.size)/float(self.total_size))*100) + "%\n"
                     pass
             else:
                 shutil.copy2(s, d)   

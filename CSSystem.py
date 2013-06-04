@@ -1,10 +1,7 @@
-import os, commands
+import commands
 
 class CSSystem():
-    def stuff(self):
-        print "hey"
-        
-        
+    
     def findHardDrives(self):
         unparsed = commands.getoutput("fdisk -l").split("\n")
         if not unparsed:
@@ -21,10 +18,12 @@ class CSSystem():
     def getMountPoint(self, drive):
         unparsed = commands.getoutput("mount").split('\n')
         for line in unparsed:
-            if line.startswith('/dev/sdb'):
+            if line.startswith(drive):
                 return line.split(' ')[2]
         raise SystemException(drive + " is not mounted!")
         
+    def getDirSize(self, path):
+        return int(commands.getoutput('du -bs ' + path).split()[0])
         
             
 class SystemException(Exception):
