@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'ui/search.ui'
 #
-# Created: Tue Jun  4 16:56:15 2013
+# Created: Wed Jun  5 08:18:20 2013
 #      by: PyQt4 UI code generator 4.6.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -32,6 +32,7 @@ class Ui_Search(object):
         self.drive_name.setObjectName("drive_name")
         self.gridLayout.addWidget(self.drive_name, 1, 1, 1, 1)
         self.date_check = QtGui.QCheckBox(Search)
+        self.date_check.setChecked(False)
         self.date_check.setObjectName("date_check")
         self.gridLayout.addWidget(self.date_check, 3, 0, 1, 1)
         self.before = QtGui.QDateEdit(Search)

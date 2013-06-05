@@ -80,6 +80,7 @@ class Search(QtGui.QDialog):
         after_date = str(self.ui.after.text())
         username = str(self.ui.username.text())
         filename = str(self.ui.filename.text())
+
         if not serial and not drive_name and not date_check and not username and not filename:
             # user has not inputted anything. Main window will display an error message.
             return None
@@ -100,10 +101,9 @@ class Search(QtGui.QDialog):
         elif (serial or drive_name or date_check or filename):
             # get rid of unnecessary "AND"
             query = query[:-5]
-        else:
-            # we have some information to search with.
-            # send query to get search results and display in main window if query is sucessful.
-            return query
+        # we have some information to search with.
+        # send query to get search results and display in main window if query is sucessful.
+        return query
             
 
 class Location(QtGui.QDialog):
