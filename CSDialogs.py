@@ -1,7 +1,7 @@
 # Copy Station Dialogs
 # Contains all of the regular-user dialogs that appear on the CS GUI.
 
-import sys, shutil,  os,  mysql.connector,  threading
+import sys, shutil,  os,  mysql.connector,  datetime
 from PyQt4 import QtCore, QtGui
 from Database import *
 from CSSystem import *
@@ -70,6 +70,14 @@ class Search(QtGui.QDialog):
         self.ui = Ui_Search()
         self.ui.setupUi(self)
         self.ui.drive_name.setFocus()
+        date = datetime.date.today()
+        year = date.year
+        month = date.month
+        day = date.month
+        qd = QtCore.QDate(year, month, day)
+        before_qd = qd.addMonths(-1)
+        self.ui.before.setDate(before_qd)
+        self.ui.after.setDate(qd)
      
     def getResults(self):
         """Given input, searchs database for a hard drive match."""
@@ -95,7 +103,7 @@ class Search(QtGui.QDialog):
         if drive_name:
             query += "drive_name like \'%s\' AND " %drive_name
         if date_check:
-            query += "date_added between \'%s\' and \'%s\' AND " % (after_date,  before_date)
+            query += "date_added between str_to_date(\'%s\', \'%%m/%%d/%%Y\') and str_to_date(\'%s\', \'%%m/%%d/%%Y\') AND " % (before_date, after_date)
         if username:
             query += "username like \'%s\'" % username
         elif (serial or drive_name or date_check or filename):
@@ -103,6 +111,7 @@ class Search(QtGui.QDialog):
             query = query[:-5]
         # we have some information to search with.
         # send query to get search results and display in main window if query is sucessful.
+        print query
         return query
             
 

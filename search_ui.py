@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'ui/search.ui'
 #
-# Created: Wed Jun  5 08:18:20 2013
+# Created: Wed Jun  5 16:06:38 2013
 #      by: PyQt4 UI code generator 4.6.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -36,9 +36,11 @@ class Ui_Search(object):
         self.date_check.setObjectName("date_check")
         self.gridLayout.addWidget(self.date_check, 3, 0, 1, 1)
         self.before = QtGui.QDateEdit(Search)
+        self.before.setCalendarPopup(True)
         self.before.setObjectName("before")
         self.gridLayout.addWidget(self.before, 3, 1, 1, 1)
         self.after = QtGui.QDateEdit(Search)
+        self.after.setCalendarPopup(True)
         self.after.setObjectName("after")
         self.gridLayout.addWidget(self.after, 4, 1, 1, 1)
         self.label_3 = QtGui.QLabel(Search)
