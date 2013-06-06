@@ -5,7 +5,7 @@ TODO:
 
 """
 
-import os, os.path, re, sys, fcntl, struct, mysql.connector, commands, time
+import os, os.path, mysql.connector
 # global mysql connection/cursor
 connection = mysql.connector.connect(user='root',
                                          database='test')

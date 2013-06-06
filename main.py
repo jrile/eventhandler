@@ -118,6 +118,8 @@ class Main(QtGui.QMainWindow):
 
     def make_backup(self):
         if self.root:
+            pt = ProgressThread(self)
+            pt.start()
             self.backup_hard_drive_dialog.show()
         else:
             self.hardDriveError()           
@@ -126,7 +128,6 @@ class Main(QtGui.QMainWindow):
     def search(self):
         """Opens dialog to search for hard drives."""
         self.search_dialog.show()
-
         if self.search_dialog.exec_():
             query = self.search_dialog.getResults()
             if query:
@@ -162,6 +163,13 @@ class Main(QtGui.QMainWindow):
             self.drive_selected_dialog.show()
         else:
             QtGui.QMessageBox.warning(self,  "Error!", "No folders found for this drive.")
+            
+class ProgressThread(QtCore.QThread):
+    def __init__(self, parent=None):
+        super(ProgressThread, self).__init__()
+        self.progress = QtGui.QProgressDialog("Backing up", "Cancel", 0, 100000, parent)
+        self.progress.show()
+        QtCore.QObject.connect(self.progress, QtCore.SIGNAL("cancelled()"), parent.backup_hard_drive_dialog.cancelled)
 
 ##############################################################
 if __name__ == "__main__":

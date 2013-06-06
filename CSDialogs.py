@@ -1,7 +1,7 @@
 # Copy Station Dialogs
-# Contains all of the regular-user dialogs that appear on the CS GUI.
+# Contains all of the regular-user dialogs that appear on the Copy Station GUI.
 
-import sys, shutil,  os,  mysql.connector,  datetime
+import shutil,  os,  mysql.connector,  datetime
 from PyQt4 import QtCore, QtGui
 from Database import *
 from CSSystem import *
@@ -173,7 +173,9 @@ class SelectHDD(QtGui.QDialog):
 class BackupHDD(QtGui.QDialog):
     def __init__(self,parent=None):
         """Dialog box to add new hard drives to database."""
+        self.size = 0
         QtGui.QWidget.__init__(self,parent)
+        self.parent = parent
         self.username = parent.username
         self.ui = Ui_BackupHDD()
         self.ui.setupUi(self)
@@ -208,22 +210,22 @@ class BackupHDD(QtGui.QDialog):
                 QtGui.QMessageBox.warning(self,  "Error!", "Can't copy " + source + " to itself!")
                 continue
            if dest != 'Don\'t backup':
-               self.hide()
-               self.backupCopy = BackupCopy(source, dest, self.username)
-               self.backupCopy.run()
-
-class BackupCopy(QtCore.QThread):
-    # note, this will not work if folder already exists!!
-    def __init__(self, source, dest, username):
-        self.size = 0
-        source_mount_point = system.getMountPoint(source)
-        dest_mount_point = system.getMountPoint(dest)
-        self.total_size = system.getDirSize(source_mount_point)
-        QtCore.QThread.__init__(self)
-        self.copy(source_mount_point, dest_mount_point)
-        db.addHardDrive(system.getSerial(dest), username,  dest_mount_point, system.getSerial(source), source_mount_point)
-        
+               #self.hide()
+               #self.backupCopy = BackupCopy(self.parent, source, dest, self.username)
+               self.copy(source, dest)
+               #self.backupCopy.run()
+               
+               
+    @QtCore.pyqtSlot()
+    def cancelled(self):
+        sys.exit()
+               
+               
     def copy(self, source, target):
+        source_mount_point = system.getMountPoint(source)
+        dest_mount_point = system.getMountPoint(target)
+        self.total_size = system.getDirSize(source_mount_point)
+        db.addHardDrive(system.getSerial(target), self.username,  dest_mount_point, system.getSerial(source), source_mount_point)
         #monkey patch shutil so we can get a progress report of what's going on
         shutil.copy2_old = shutil.copy2 
         def copy2(src, dst): 
@@ -232,14 +234,14 @@ class BackupCopy(QtCore.QThread):
             self.size += os.path.getsize(src)
             print self.size, "/",   self.total_size, "bytes\t\t",  '%.1f' % ((float(self.size)/float(self.total_size))*100) + "%\n"
         shutil.copy2 = copy2 
-        for item in os.listdir(source):
-            s = os.path.join(source, item)
-            d = os.path.join(target, item)
+        for item in os.listdir(source_mount_point):
+            s = os.path.join(source_mount_point, item)
+            d = os.path.join(dest_mount_point, item)
             if os.path.isdir(s):
                 try:
                     shutil.copytree(s, d)
                 except OSError, e:
-                    if e.errno != 17: # 17 = file already exists (comes up with Trash folder often)
+                    if e.errno != 17: # 17 = folder already exists (comes up with Trash folder often)
                         raise              # ignore if 17, else raise it.
                     print "Copying: " + e.filename + " - path already exists on destination hard drive!!"
                     self.size += system.getDirSize(d)
@@ -247,6 +249,4 @@ class BackupCopy(QtCore.QThread):
                     pass
             else:
                 shutil.copy2(s, d)   
-        print "Done!"
-
-     
+        print "Done!"              
