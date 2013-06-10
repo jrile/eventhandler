@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'ui/add_user.ui'
 #
-# Created: Mon Jun 10 08:20:05 2013
+# Created: Mon Jun 10 10:27:57 2013
 #      by: PyQt4 UI code generator 4.6.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -58,8 +58,8 @@ class Ui_AddUser(object):
 
     def retranslateUi(self, AddUser):
         AddUser.setWindowTitle(QtGui.QApplication.translate("AddUser", "Dialog", None, QtGui.QApplication.UnicodeUTF8))
-        self.label.setText(QtGui.QApplication.translate("AddUser", "Username:", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_2.setText(QtGui.QApplication.translate("AddUser", "Password:", None, QtGui.QApplication.UnicodeUTF8))
+        self.label.setText(QtGui.QApplication.translate("AddUser", "*Username:", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_2.setText(QtGui.QApplication.translate("AddUser", "*Password:", None, QtGui.QApplication.UnicodeUTF8))
         self.label_3.setText(QtGui.QApplication.translate("AddUser", "Name:", None, QtGui.QApplication.UnicodeUTF8))
         self.label_4.setText(QtGui.QApplication.translate("AddUser", "Level:\n"
 "1 = default\n"

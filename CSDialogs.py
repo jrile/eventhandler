@@ -183,13 +183,18 @@ class BackupHDD(QtGui.QDialog):
             if serial and name:
                 self.mounted_hdds.append(hdd)    
         self.ui.backupTable.horizontalHeader().setResizeMode(QtGui.QHeaderView.Stretch)
-        for i in range(len(self.mounted_hdds)):
-            self.ui.comboBox = QtGui.QComboBox(self)
-            self.ui.comboBox.addItem("Don't backup")
-            self.ui.comboBox.addItems(self.mounted_hdds)
+        for i in range(len(self.mounted_hdds)-1):
+            comboBox = QtGui.QComboBox()
+            comboBox.addItems(self.mounted_hdds)
+            comboBox.addItem("---")
+            comboBox2 = QtGui.QComboBox()
+            self.mounted_hdds.reverse()
+            comboBox2.addItems(self.mounted_hdds)
+            comboBox2.addItem("---")
             self.ui.backupTable.insertRow(i)
-            self.ui.backupTable.setItem(i,  0, QtGui.QTableWidgetItem(self.mounted_hdds[i]))
-            self.ui.backupTable.setCellWidget(i,  1, self.ui.comboBox)
+            #self.ui.backupTable.setItem(i,  0, QtGui.QTableWidgetItem(self.mounted_hdds[i]))
+            self.ui.backupTable.setCellWidget(i, 0, comboBox)
+            self.ui.backupTable.setCellWidget(i,  1, comboBox2)
                     
     def accept(self):
         super(BackupHDD, self).accept()
@@ -197,15 +202,20 @@ class BackupHDD(QtGui.QDialog):
             self.processBackup()
         except mysql.connector.errors.IntegrityError:
             QtGui.QMessageBox.warning(self,  "Error!", "Serial for destination hard drive already exists in system! Please try another hard drive.")            
+            
+    def show(self):
+        super(BackupHDD, self).show()
+        if len(self.mounted_hdds) < 2:
+            QtGui.QMessageBox.warning(self, "Error!", "Need more than one mounted hard drive to back up!")
         
     def processBackup(self):
         for row in range(0, self.ui.backupTable.rowCount()):
-           source = str(self.ui.backupTable.item(row, 0).text())
+           source = str(self.ui.backupTable.cellWidget(row, 0).currentText())
            dest = str(self.ui.backupTable.cellWidget(row, 1).currentText())
            if source == dest:
                 QtGui.QMessageBox.warning(self,  "Error!", "Can't copy " + source + " to itself!")
                 continue
-           if dest != 'Don\'t backup':
+           if dest != '---' and source != '---':
                self.copy(source, dest)             
                
     def copy(self, source, target):

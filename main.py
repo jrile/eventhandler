@@ -102,7 +102,6 @@ class Main(QtGui.QMainWindow):
         QtGui.QMessageBox.information(self, "About", "Copy Station\nVersion 1.0.1\n(c) 2013 Eastcor Engineering")
         
     def add_hard_drive(self):
-        """Adds hard drive to database."""
         self.add_hard_drive_dialog.show() if self.root else self.hardDriveError()
 
     def browse(self):

@@ -21,7 +21,7 @@ class CSSystem():
         for line in unparsed:
             if line.startswith(drive):
                 return line.split(' ')[2]
-        raise SystemException(drive + " is not mounted!")
+        return None
         
     def getName(self, mount_point):
         temp = mount_point.split("/")
