@@ -1,7 +1,6 @@
-import commands
+import commands, pipes
 
 class CSSystem():
-    
     def findHardDrives(self):
         unparsed = commands.getoutput("fdisk -l").split("\n")
         drives = [line[5:13] for line in unparsed if line.startswith("Disk /") and not line.startswith("Disk /dev/sda")]
@@ -15,7 +14,6 @@ class CSSystem():
         except IndexError:
             raise SystemException("Can't get serial number from hard drive " + drive)
             
-            
     def getMountPoint(self, drive):
         unparsed = commands.getoutput("mount").split('\n')
         for line in unparsed:
@@ -28,8 +26,11 @@ class CSSystem():
         return temp[-1]
         
     def getDirSize(self, path):
-        return int(commands.getoutput('du -bs ' + path).split()[0])
-        
-            
+        try:
+            size = int(commands.getoutput('du -bs ' + pipes.quote(path)).split()[0])
+        except ValueError:
+            return 0
+        return size
+
 class SystemException(Exception):
     pass

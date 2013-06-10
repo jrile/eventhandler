@@ -14,7 +14,6 @@ class DatabaseException(Exception):
     pass
 
 class Database():
-    
     def search(self,  query):
         cursor.execute(query)
         return cursor.fetchall()
@@ -102,7 +101,6 @@ class Database():
         """Given a directory, iterates through to find subdirectories.
         Adds all subdirectories to `data_folder` table, and sends folder path
         on to addFiles."""
-
         add_path = ("insert IGNORE into data_folders "
                     "(serial, folder_name) "
                     "values (%s, %s)")
@@ -114,7 +112,6 @@ class Database():
                 cursor.execute(get_seq,  (f,  serial))
                 sequence = cursor.fetchone()[0]
                 self.addFiles(os.path.join(path,  f),  sequence)        
-
 
     def addFiles(self, path, sequence):     
         add_file = ("insert IGNORE into data_files "

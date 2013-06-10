@@ -22,7 +22,7 @@ class Login(QtGui.QDialog):
         self.ui = Ui_Login()
         self.ui.setupUi(self)
         self.ui.usernameValue.setFocus()
-        self.mainwindow = Main(self)
+
 
     def accept(self):
         """User has clicked okay or pressed return, verify login is valid."""
@@ -32,14 +32,13 @@ class Login(QtGui.QDialog):
         if result is None:
             self.login_error()
         else:
+            self.hide()
             # success! bring up main window.
+            self.mainwindow = Main(self)
             self.level = result[0]
-            self.mainwindow.set(self.username)
             if self.level == ADMIN_LEVEL:
                 self.mainwindow.ui.addAdminTools(self.mainwindow)
             self.mainwindow.show()
-            self.hide()
-            #QtGui.QDialog.accept(self)
 
     def login_error(self):
         self.ui.usernameValue.setText("")
@@ -53,7 +52,7 @@ class Login(QtGui.QDialog):
 class Main(QtGui.QMainWindow):
     def __init__(self,  parent=None):
         """The main window. Shows hard drive query results, also has a file menu."""
-        self.username = None
+        self.username = parent.username
         self.errormsg = None
         QtGui.QMainWindow.__init__(self,parent)
         self.ui = Ui_MainWindow()
@@ -66,9 +65,6 @@ class Main(QtGui.QMainWindow):
         self.del_user_dialog = AdminTools.DelUser(self)
         self.edit_user_dialog = AdminTools.EditUser(self)
         self.addAndBackupDialogs()
-    
-    def set(self, username):
-        self.username = username
     
     def addAndBackupDialogs(self):
         """Bring up dialogs concerning hard drive information."""

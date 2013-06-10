@@ -8,7 +8,7 @@ from PyQt4 import QtCore, QtGui
 from add_user_ui import *
 from delete_user_ui import *
 from edit_user_ui import *
-import Database
+import Database, mysql.connector.errors
 
 
 class AddUser(QtGui.QDialog):
@@ -28,7 +28,7 @@ class AddUser(QtGui.QDialog):
                                                                 lvl,  str(self.ui.name.text()))
            except ValueError:
                 QtGui.QMessageBox.warning(self,  "Error",  "Level is not a valid input.")
-           except: 
+           except mysql.connector.errors.IntegrityError: 
                 QtGui.QMessageBox.warning(self, "Error!", "Username already exists!")
                 self.ui.username.setFocus()
            else:
@@ -38,7 +38,6 @@ class AddUser(QtGui.QDialog):
                 self.ui.name.setText("")
                 self.ui.level.setText("1")
                 super(AddUser,  self).accept()
-
 
 class DelUser(QtGui.QDialog):
     def __init__(self,parent=None):
@@ -111,6 +110,7 @@ class EditUser(QtGui.QDialog):
             self.ui.password.setStyleSheet("QLineEdit{background:#CCCCCC;}")
             self.ui.level.setStyleSheet("QLineEdit{background:#CCCCCC;}")
             super(EditUser,  self).accept()
+            
     def reject(self):
             self.ui.username.setStyleSheet("")
             self.ui.username.setReadOnly(False)
