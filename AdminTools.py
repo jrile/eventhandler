@@ -1,6 +1,6 @@
 """
 Copy Station Administrator Tools
-Special menu for users with administrator writes. Gives them access to user functionality.
+Special menu for users with administrator rights. Gives them access to user functionality.
 TODO:
 sha1 not secure
 """
@@ -12,7 +12,6 @@ import Database
 
 
 class AddUser(QtGui.QDialog):
-    """Add user dialog box."""
     def __init__(self,parent=None):
         QtGui.QWidget.__init__(self,parent)
         self.ui = Ui_AddUser()
@@ -42,7 +41,6 @@ class AddUser(QtGui.QDialog):
 
 
 class DelUser(QtGui.QDialog):
-    """Add user dialog box."""
     def __init__(self,parent=None):
         QtGui.QWidget.__init__(self,parent)
         self.ui = Ui_DelUser()
@@ -64,7 +62,6 @@ class DelUser(QtGui.QDialog):
                 super(DelUser,  self).accept()
                 
 class EditUser(QtGui.QDialog):
-    """Add user dialog box."""
     def __init__(self,parent=None):
         QtGui.QWidget.__init__(self,parent)
         self.ui = Ui_EditUser()
@@ -91,7 +88,6 @@ class EditUser(QtGui.QDialog):
         else:
             QtGui.QMessageBox.warning(self,  "Error",  "Username not found.")
             self.ui.username.setFocus()
-
         
     def accept(self):
         try:

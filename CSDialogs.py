@@ -18,9 +18,9 @@ system = CSSystem()
 
 class FolderView(QtGui.QDialog):
     """The view that appears when a user clicks on a hard drive from the main window.
-    Displays drive contents, allows user to make a copy and allows user to view pre-existing copies."""
+    Displays drive contents, allows user to edit location."""
     def __init__(self, parent=None):
-        QtGui.QWidget.__init__(self,parent)
+        QtGui.QDialog.__init__(self,parent)
         self.ui = Ui_FolderView()
         self.ui.setupUi(self)
         self.location_dialog = Location(self)
@@ -64,7 +64,7 @@ class FolderView(QtGui.QDialog):
 class Search(QtGui.QDialog):
     """Search dialog box."""
     def __init__(self,parent=None):
-        QtGui.QWidget.__init__(self,parent)
+        QtGui.QDialog.__init__(self,parent)
         self.ui = Ui_Search()
         self.ui.setupUi(self)
         self.ui.drive_name.setFocus()
@@ -115,7 +115,7 @@ class Search(QtGui.QDialog):
 
 class Location(QtGui.QDialog):
     def __init__(self, parent=None):
-        QtGui.QWidget.__init__(self, parent)
+        QtGui.QDialog.__init__(self, parent)
         self.ui = Ui_Location()
         self.ui.setupUi(self)
         
@@ -126,10 +126,7 @@ class Location(QtGui.QDialog):
         if not location:
             location_text = "There is no location information on file."
         else:
-            location_text = "Location:\n"
-            for i in location:
-                for j in i:
-                    location_text += str(j)
+            location_text = "Location:\n" + location[0]
         self.ui.label.setText(QtGui.QApplication.translate("Location", "Location for...\n" + serial + "\n" +drive_name +":\n\n" + location_text,  
                                                            None, QtGui.QApplication.UnicodeUTF8))
                                                            
@@ -143,7 +140,7 @@ class Location(QtGui.QDialog):
 class SelectHDD(QtGui.QDialog):
     def __init__(self,parent=None):
         """Dialog box to add new hard drives to database."""
-        QtGui.QWidget.__init__(self,parent)
+        QtGui.QDialog.__init__(self,parent)
         self.username = parent.username
         self.ui = Ui_SelectHDD()
         self.ui.setupUi(self)
@@ -171,9 +168,9 @@ class SelectHDD(QtGui.QDialog):
 
 class BackupHDD(QtGui.QDialog):
     def __init__(self,parent=None):
-        """Dialog box to add new hard drives to database."""
+        """Dialog box to back up a hard drive and add both hard drives to database."""
         self.size = 0
-        QtGui.QWidget.__init__(self,parent)
+        QtGui.QDialog.__init__(self,parent)
         self.parent = parent
         self.username = parent.username
         self.ui = Ui_BackupHDD()

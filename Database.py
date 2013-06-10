@@ -37,7 +37,7 @@ class Database():
     def getLocation(self, serial):
         query = "select location from location where serial = \'%s\'" % serial
         cursor.execute(query)
-        return cursor.fetchall()
+        return cursor.fetchone()
         
     def addUser(self,  username, passhash, level,  name=None):
         if not name:

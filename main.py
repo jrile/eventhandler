@@ -1,18 +1,15 @@
-""" 
-TODO: fix date default
-spread drive search/browse results across pages.
-search folders/files as well?
-"""
-
 import sys,  CSSystem
 from PyQt4 import QtCore,  QtGui
 import AdminTools,  CSDialogs,  Database
 from login_ui import *
 from main_ui import *
 
-#global mysql connection
+# global mysql connection
 db = Database.Database() 
+# constant variable that defines what the administrator level is
 ADMIN_LEVEL = 3
+
+
 class Login(QtGui.QDialog):
     """Main login class that will show up first.
     Checks database to ensure that it's an authorized user.
@@ -25,11 +22,7 @@ class Login(QtGui.QDialog):
         self.ui = Ui_Login()
         self.ui.setupUi(self)
         self.ui.usernameValue.setFocus()
-        self.ui.loginButton.setAutoDefault(True)
-        self.ui.cancelButton.setAutoDefault(True)
-        icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("ui/copy.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        self.setWindowIcon(icon)
+        self.mainwindow = Main(self)
 
     def accept(self):
         """User has clicked okay or pressed return, verify login is valid."""
@@ -41,11 +34,12 @@ class Login(QtGui.QDialog):
         else:
             # success! bring up main window.
             self.level = result[0]
-            self.hide()
-            mainwindow = Main(self)
+            self.mainwindow.set(self.username)
             if self.level == ADMIN_LEVEL:
-                mainwindow.ui.addAdminTools(mainwindow)
-            mainwindow.show()
+                self.mainwindow.ui.addAdminTools(self.mainwindow)
+            self.mainwindow.show()
+            self.hide()
+            #QtGui.QDialog.accept(self)
 
     def login_error(self):
         self.ui.usernameValue.setText("")
@@ -54,13 +48,12 @@ class Login(QtGui.QDialog):
         QtGui.QMessageBox.warning(self, "Error!", "Invalid login, please try again.")
 
     def reject(self):
-        # if the login is cancelled, close the program.
         sys.exit()
         
 class Main(QtGui.QMainWindow):
     def __init__(self,  parent=None):
         """The main window. Shows hard drive query results, also has a file menu."""
-        self.username = parent.username
+        self.username = None
         self.errormsg = None
         QtGui.QMainWindow.__init__(self,parent)
         self.ui = Ui_MainWindow()
@@ -73,6 +66,9 @@ class Main(QtGui.QMainWindow):
         self.del_user_dialog = AdminTools.DelUser(self)
         self.edit_user_dialog = AdminTools.EditUser(self)
         self.addAndBackupDialogs()
+    
+    def set(self, username):
+        self.username = username
     
     def addAndBackupDialogs(self):
         """Bring up dialogs concerning hard drive information."""
@@ -106,18 +102,16 @@ class Main(QtGui.QMainWindow):
         QtGui.QMessageBox.information(self, "About", "Copy Station\nVersion 1.0.1\n(c) 2013 Eastcor Engineering")
         
     def add_hard_drive(self):
-        """Brings up add hard drive dialog. Adds hard drive to database."""
+        """Adds hard drive to database."""
         self.add_hard_drive_dialog.show() if self.root else self.hardDriveError()
 
     def browse(self):
-        """Displays all drives in database."""
         self.display_drives(db.browse())
 
     def make_backup(self):
         self.backup_hard_drive_dialog.show() if self.root else self.hardDriveError()           
         
     def search(self):
-        """Opens dialog to search for hard drives."""
         self.search_dialog.show()
         if self.search_dialog.exec_():
             query = self.search_dialog.getResults()
@@ -125,10 +119,10 @@ class Main(QtGui.QMainWindow):
                 results = db.search(query)
                 if not results:
                     QtGui.QMessageBox.warning(self,  "Error!", "No items found.")
-                    self.ui.tableWidget.setRowCount(0)
                 else:
                     self.display_drives(results)
             else:
+                # query returned nothing, user inputted nothing
                 QtGui.QMessageBox.warning(self, "Error!", "Select at least one item to search for!")
                 
     def display_drives(self,  values):

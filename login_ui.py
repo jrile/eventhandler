@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'ui/login.ui'
 #
-# Created: Tue Jun  4 15:42:49 2013
+# Created: Mon Jun 10 10:02:09 2013
 #      by: PyQt4 UI code generator 4.6.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -14,6 +14,9 @@ class Ui_Login(object):
         Login.setObjectName("Login")
         Login.resize(433, 172)
         Login.setMinimumSize(QtCore.QSize(433, 172))
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap("ui/copy.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        Login.setWindowIcon(icon)
         self.verticalLayoutWidget = QtGui.QWidget(Login)
         self.verticalLayoutWidget.setGeometry(QtCore.QRect(40, 40, 141, 91))
         self.verticalLayoutWidget.setObjectName("verticalLayoutWidget")
