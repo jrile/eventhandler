@@ -1,7 +1,7 @@
 # Copy Station Dialogs
 # Contains all of the regular-user dialogs that appear on the Copy Station GUI.
 
-import shutil,  os, datetime
+import shutil,  os, datetime, mysql.connector.errors
 from PyQt4 import QtCore, QtGui
 from Database import *
 from CSSystem import *
@@ -198,8 +198,8 @@ class BackupHDD(QtGui.QDialog):
         super(BackupHDD, self).accept()
         try:
             self.processBackup()
-        except:
-            QtGui.QMessageBox.warning(self,  "Error!", "Backup already exists in system!")            
+        except mysql.connector.errors.IntegrityError:
+            QtGui.QMessageBox.warning(self,  "Error!", "Serial for destination hard drive already exists in system! Please try another hard drive.")            
         
     def processBackup(self):
         for row in range(0, self.ui.backupTable.rowCount()):
@@ -213,13 +213,14 @@ class BackupHDD(QtGui.QDialog):
                
     def copy(self, source, target):
         source_mount_point = system.getMountPoint(source)
+        source_name = system.getName(source_mount_point)
         dest_mount_point = system.getMountPoint(target)
+        dest_name = system.getName(dest_mount_point)
         self.total_size = system.getDirSize(source_mount_point)
-        db.addHardDrive(system.getSerial(target), self.username,  dest_mount_point, system.getSerial(source), source_mount_point)
         #monkey patch shutil so we can get a progress report of what's going on
         shutil.copy2_old = shutil.copy2 
         def copy2(src, dst): 
-            print "Copying: " + dst
+            print "Copying: " + src
             shutil.copy2_old(src, dst) 
             self.size += os.path.getsize(src)
             print self.size, "/",   self.total_size, "bytes\t\t",  '%.1f' % ((float(self.size)/float(self.total_size))*100) + "%\n"
@@ -238,5 +239,7 @@ class BackupHDD(QtGui.QDialog):
                     print self.size, "/",   self.total_size, "bytes\t\t",  '%.1f' % ((float(self.size)/float(self.total_size))*100) + "%\n"
                     pass
             else:
-                shutil.copy2(s, d)   
+                shutil.copy2(s, d) 
+        print "Adding to database..."
+        db.addHardDrive(system.getSerial(target), self.username,  dest_name, dest_mount_point, system.getSerial(source), source_name, source_mount_point)
         print "Done!"              

@@ -6,7 +6,7 @@ class CSSystem():
         unparsed = commands.getoutput("fdisk -l").split("\n")
         drives = [line[5:13] for line in unparsed if line.startswith("Disk /") and not line.startswith("Disk /dev/sda")]
         if not drives:
-            raise SystemException("Can't get hard drive information from fdisk. Make sure the hard drive is mounted and run with higher privileges.")
+            raise SystemException("Can't get any information from fdisk. Please make sure you are running as root user and there is more than one hard drive mounted.")
         return drives
         
     def getSerial(self, drive):

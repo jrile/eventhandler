@@ -84,7 +84,7 @@ class Database():
             return False
         return True
 
-    def addHardDrive(self, serial,  username,  name, mount, backup_serial=None, backup_name=None):
+    def addHardDrive(self, serial,  username,  name, mount, backup_serial=None, backup_name=None, backup_mount=None):
         """Adds a hard drive to the 'master_drive' table.
         Check to see if exists in database, if not add everything to database."""
         if not backup_serial:
@@ -92,7 +92,7 @@ class Database():
                     "username) values (%s, %s, %s)")
             cursor.execute(query, (serial, name, username))
         else:
-            self.addHardDrive(backup_serial, username, backup_name) # if the original hard drive hasn't been added, add it.
+            self.addHardDrive(backup_serial, username, backup_name, backup_mount) # if the original hard drive hasn't been added, add it.
             query = ("insert ignore into master_drive (serial, drive_name, "
                             "username, is_backup_of) values (%s,  %s, %s, %s)"  )
             cursor.execute(query, (serial, name, username, backup_serial))
