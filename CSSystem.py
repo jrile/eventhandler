@@ -20,7 +20,7 @@ class CSSystem():
         unparsed = commands.getoutput("mount").split('\n')
         for line in unparsed:
             if line.startswith(drive):
-                return line.split(' ')[2]
+                return ' '.join(line.split(' ')[2:-3])
         return None
         
     def getName(self, mount_point):
