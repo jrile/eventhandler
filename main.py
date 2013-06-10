@@ -1,3 +1,5 @@
+#TODO : make button to manually override "is backup of"
+
 import sys,  CSSystem
 from PyQt4 import QtCore,  QtGui
 import AdminTools,  CSDialogs,  Database
@@ -22,7 +24,6 @@ class Login(QtGui.QDialog):
         self.ui = Ui_Login()
         self.ui.setupUi(self)
         self.ui.usernameValue.setFocus()
-
 
     def accept(self):
         """User has clicked okay or pressed return, verify login is valid."""

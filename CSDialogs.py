@@ -15,7 +15,6 @@ from copying_ui import *
 db = Database()
 system = CSSystem()
 
-
 class FolderView(QtGui.QDialog):
     """The view that appears when a user clicks on a hard drive from the main window.
     Displays drive contents, allows user to edit location."""
@@ -60,7 +59,7 @@ class FolderView(QtGui.QDialog):
     def location(self):
         self.location_dialog.set(self.serial, self.drive_name)
         self.location_dialog.show()
-        
+
 class Search(QtGui.QDialog):
     """Search dialog box."""
     def __init__(self,parent=None):
@@ -69,13 +68,9 @@ class Search(QtGui.QDialog):
         self.ui.setupUi(self)
         self.ui.drive_name.setFocus()
         date = datetime.date.today()
-        year = date.year
-        month = date.month
-        day = date.month
-        qd = QtCore.QDate(year, month, day)
-        before_qd = qd.addMonths(-1)
+        qd = QtCore.QDate(date.year, date.month, date.day+1)
         # set before date to one month prior to today, after date to today
-        self.ui.before.setDate(before_qd)
+        self.ui.before.setDate(qd.addMonths(-1))
         self.ui.after.setDate(qd)
      
     def getResults(self):
@@ -87,8 +82,9 @@ class Search(QtGui.QDialog):
         after_date = str(self.ui.after.text())
         username = str(self.ui.username.text())
         filename = str(self.ui.filename.text())
+        is_backup_of = str(self.ui.is_backup_of.text())
 
-        if not serial and not drive_name and not date_check and not username and not filename:
+        if not serial and not drive_name and not date_check and not username and not filename and not is_backup_of:
             # user has not inputted anything. Main window will display an error message.
             return None
         query = "select distinct master_drive.serial, drive_name, date_added, username, is_backup_of from master_drive "
@@ -104,8 +100,10 @@ class Search(QtGui.QDialog):
         if date_check:
             query += "date_added between str_to_date(\'%s\', \'%%m/%%d/%%Y\') and str_to_date(\'%s\', \'%%m/%%d/%%Y\') AND " % (before_date, after_date)
         if username:
-            query += "username like \'%s\'" % username
-        elif (serial or drive_name or date_check or filename):
+            query += "username like \'%s\' AND" % username
+        if is_backup_of:
+            query += "is_backup_of = \'%s\'" % is_backup_of
+        elif (serial or drive_name or date_check or filename or username):
             # get rid of unnecessary "AND"
             query = query[:-5]
         # we have some information to search with.

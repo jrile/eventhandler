@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'ui/search.ui'
 #
-# Created: Wed Jun  5 16:06:38 2013
+# Created: Mon Jun 10 15:32:44 2013
 #      by: PyQt4 UI code generator 4.6.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -57,6 +57,12 @@ class Ui_Search(object):
         self.filename.setMaxLength(100)
         self.filename.setObjectName("filename")
         self.gridLayout.addWidget(self.filename, 5, 1, 1, 1)
+        self.label_2 = QtGui.QLabel(Search)
+        self.label_2.setObjectName("label_2")
+        self.gridLayout.addWidget(self.label_2, 6, 0, 1, 1)
+        self.is_backup_of = QtGui.QLineEdit(Search)
+        self.is_backup_of.setObjectName("is_backup_of")
+        self.gridLayout.addWidget(self.is_backup_of, 6, 1, 1, 1)
         self.verticalLayout.addLayout(self.gridLayout)
         self.buttonBox = QtGui.QDialogButtonBox(Search)
         self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
@@ -74,6 +80,10 @@ class Ui_Search(object):
         self.label.setText(QtGui.QApplication.translate("Search", "Serial:", None, QtGui.QApplication.UnicodeUTF8))
         self.drive_name_2.setText(QtGui.QApplication.translate("Search", "Drive Name:", None, QtGui.QApplication.UnicodeUTF8))
         self.date_check.setText(QtGui.QApplication.translate("Search", "Date:", None, QtGui.QApplication.UnicodeUTF8))
+        self.before.setDisplayFormat(QtGui.QApplication.translate("Search", "MM/dd/yy", None, QtGui.QApplication.UnicodeUTF8))
+        self.after.setDisplayFormat(QtGui.QApplication.translate("Search", "MM/dd/yy", None, QtGui.QApplication.UnicodeUTF8))
         self.label_3.setText(QtGui.QApplication.translate("Search", "Username:", None, QtGui.QApplication.UnicodeUTF8))
         self.label_4.setText(QtGui.QApplication.translate("Search", "Filename:", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_2.setText(QtGui.QApplication.translate("Search", "Is Backup Of:\n"
+"(Serial #)", None, QtGui.QApplication.UnicodeUTF8))
 

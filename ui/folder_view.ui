@@ -87,7 +87,7 @@
    <slot>location()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>156</x>
+     <x>366</x>
      <y>461</y>
     </hint>
     <hint type="destinationlabel">
