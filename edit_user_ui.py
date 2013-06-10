@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'ui/edit_user.ui'
 #
-# Created: Tue Jun  4 16:42:33 2013
+# Created: Mon Jun 10 08:20:12 2013
 #      by: PyQt4 UI code generator 4.6.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -30,6 +30,7 @@ class Ui_EditUser(object):
         self.password = QtGui.QLineEdit(EditUser)
         self.password.setStyleSheet("QLineEdit{background:#CCCCCC;}")
         self.password.setMaxLength(20)
+        self.password.setEchoMode(QtGui.QLineEdit.Password)
         self.password.setReadOnly(True)
         self.password.setObjectName("password")
         self.gridLayout.addWidget(self.password, 2, 1, 1, 1)

@@ -22,6 +22,10 @@
   <property name="windowTitle">
    <string>Copy Station</string>
   </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>copy.png</normaloff>copy.png</iconset>
+  </property>
   <widget class="QWidget" name="centralwidget">
    <property name="sizePolicy">
     <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -329,22 +333,6 @@
     <hint type="destinationlabel">
      <x>399</x>
      <y>299</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>tableWidget</sender>
-   <signal>cellEntered(int,int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>drive_selected(int,int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>74</x>
-     <y>205</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>184</x>
-     <y>577</y>
     </hint>
    </hints>
   </connection>

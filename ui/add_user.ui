@@ -34,7 +34,11 @@
       </widget>
      </item>
      <item row="1" column="1">
-      <widget class="QLineEdit" name="password"/>
+      <widget class="QLineEdit" name="password">
+       <property name="echoMode">
+        <enum>QLineEdit::Password</enum>
+       </property>
+      </widget>
      </item>
      <item row="2" column="0">
       <widget class="QLabel" name="label_3">
@@ -49,7 +53,9 @@
      <item row="3" column="0">
       <widget class="QLabel" name="label_4">
        <property name="text">
-        <string>Level:</string>
+        <string>Level:
+1 = default
+3 = admin</string>
        </property>
       </widget>
      </item>
@@ -60,6 +66,9 @@
          <width>35</width>
          <height>16777215</height>
         </size>
+       </property>
+       <property name="text">
+        <string>1</string>
        </property>
        <property name="maxLength">
         <number>1</number>

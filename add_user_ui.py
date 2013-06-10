@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'ui/add_user.ui'
 #
-# Created: Tue Jun  4 15:31:33 2013
+# Created: Mon Jun 10 08:20:05 2013
 #      by: PyQt4 UI code generator 4.6.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -27,6 +27,7 @@ class Ui_AddUser(object):
         self.label_2.setObjectName("label_2")
         self.gridLayout.addWidget(self.label_2, 1, 0, 1, 1)
         self.password = QtGui.QLineEdit(AddUser)
+        self.password.setEchoMode(QtGui.QLineEdit.Password)
         self.password.setObjectName("password")
         self.gridLayout.addWidget(self.password, 1, 1, 1, 1)
         self.label_3 = QtGui.QLabel(AddUser)
@@ -60,5 +61,8 @@ class Ui_AddUser(object):
         self.label.setText(QtGui.QApplication.translate("AddUser", "Username:", None, QtGui.QApplication.UnicodeUTF8))
         self.label_2.setText(QtGui.QApplication.translate("AddUser", "Password:", None, QtGui.QApplication.UnicodeUTF8))
         self.label_3.setText(QtGui.QApplication.translate("AddUser", "Name:", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_4.setText(QtGui.QApplication.translate("AddUser", "Level:", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_4.setText(QtGui.QApplication.translate("AddUser", "Level:\n"
+"1 = default\n"
+"3 = admin", None, QtGui.QApplication.UnicodeUTF8))
+        self.level.setText(QtGui.QApplication.translate("AddUser", "1", None, QtGui.QApplication.UnicodeUTF8))
 

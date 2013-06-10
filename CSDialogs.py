@@ -1,7 +1,7 @@
 # Copy Station Dialogs
 # Contains all of the regular-user dialogs that appear on the Copy Station GUI.
 
-import shutil,  os,  mysql.connector,  datetime
+import shutil,  os, datetime
 from PyQt4 import QtCore, QtGui
 from Database import *
 from CSSystem import *
@@ -25,14 +25,12 @@ class FolderView(QtGui.QDialog):
         self.ui.setupUi(self)
         self.location_dialog = Location(self)
 
-        
     def set(self,  serial, drive_name):
         self.ui.folder.clear()
         self.serial = serial
         self.drive_name = drive_name
         self.num_copies = db.getCopies(str(serial))
         self.ui.copyLabel.setText(QtGui.QApplication.translate("FolderView", "# copies: " + str(self.num_copies), None, QtGui.QApplication.UnicodeUTF8))
-
 
     def getResults(self):
         """Retrieves all `data_folders` associated with the hard drive's serial number.
@@ -76,11 +74,12 @@ class Search(QtGui.QDialog):
         day = date.month
         qd = QtCore.QDate(year, month, day)
         before_qd = qd.addMonths(-1)
+        # set before date to one month prior to today, after date to today
         self.ui.before.setDate(before_qd)
         self.ui.after.setDate(qd)
      
     def getResults(self):
-        """Given input, searchs database for a hard drive match."""
+        """Given input, searchs database for a hard drive/filename match."""
         serial = str(self.ui.serial.text())
         drive_name = str(self.ui.drive_name.text())
         date_check = self.ui.date_check.checkState()
@@ -92,12 +91,12 @@ class Search(QtGui.QDialog):
         if not serial and not drive_name and not date_check and not username and not filename:
             # user has not inputted anything. Main window will display an error message.
             return None
-        query = "select serial, drive_name, date_added, username, is_backup_of from master_drive "
+        query = "select distinct master_drive.serial, drive_name, date_added, username, is_backup_of from master_drive "
         if filename:
             query += "inner join data_folders inner join data_files "
         query += "where "
         if filename:
-            query += "file_name like \'%s\' AND " % filename
+            query += "file_name = \'%s\' AND " % filename
         if serial:
             query += "serial like \'%s\' AND " % serial
         if drive_name:
@@ -111,7 +110,6 @@ class Search(QtGui.QDialog):
             query = query[:-5]
         # we have some information to search with.
         # send query to get search results and display in main window if query is sucessful.
-        print query
         return query
             
 
@@ -166,8 +164,9 @@ class SelectHDD(QtGui.QDialog):
                 drive_info = str(self.ui.hddList.item(i).text()).split()
                 path = drive_info[0]
                 serial = drive_info[1]
-                name = system.getMountPoint(path)
-                db.addHardDrive(serial,  self.username,  name)
+                name = system.getName(system.getMountPoint(path))
+                mount = system.getMountPoint(path)
+                db.addHardDrive(serial,  self.username,  name, mount)
 
 
 class BackupHDD(QtGui.QDialog):
@@ -199,7 +198,7 @@ class BackupHDD(QtGui.QDialog):
         super(BackupHDD, self).accept()
         try:
             self.processBackup()
-        except mysql.connector.errors.IntegrityError:
+        except:
             QtGui.QMessageBox.warning(self,  "Error!", "Backup already exists in system!")            
         
     def processBackup(self):
@@ -210,16 +209,7 @@ class BackupHDD(QtGui.QDialog):
                 QtGui.QMessageBox.warning(self,  "Error!", "Can't copy " + source + " to itself!")
                 continue
            if dest != 'Don\'t backup':
-               #self.hide()
-               #self.backupCopy = BackupCopy(self.parent, source, dest, self.username)
-               self.copy(source, dest)
-               #self.backupCopy.run()
-               
-               
-    @QtCore.pyqtSlot()
-    def cancelled(self):
-        sys.exit()
-               
+               self.copy(source, dest)             
                
     def copy(self, source, target):
         source_mount_point = system.getMountPoint(source)

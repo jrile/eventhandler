@@ -45,6 +45,9 @@
        <property name="maxLength">
         <number>20</number>
        </property>
+       <property name="echoMode">
+        <enum>QLineEdit::Password</enum>
+       </property>
        <property name="readOnly">
         <bool>true</bool>
        </property>
@@ -167,7 +170,7 @@
    <slot>check()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>150</x>
+     <x>249</x>
      <y>66</y>
     </hint>
     <hint type="destinationlabel">

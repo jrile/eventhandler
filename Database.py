@@ -2,7 +2,6 @@
 Functions that connect to the database and get information.
 TODO: 
 - sha1 not 100% secure.
-
 """
 
 import os, os.path, mysql.connector
@@ -10,7 +9,6 @@ import os, os.path, mysql.connector
 connection = mysql.connector.connect(user='root',
                                          database='test')
 cursor = connection.cursor()
-
 
 class DatabaseException(Exception):
     pass
@@ -86,18 +84,18 @@ class Database():
             return False
         return True
 
-    def addHardDrive(self, serial,  username,  mount, backup_serial=None, backup_name=None):
+    def addHardDrive(self, serial,  username,  name, mount, backup_serial=None, backup_name=None):
         """Adds a hard drive to the 'master_drive' table.
         Check to see if exists in database, if not add everything to database."""
         if not backup_serial:
             query = ("insert ignore into master_drive (serial, drive_name, "
                     "username) values (%s, %s, %s)")
-            cursor.execute(query, (serial, mount, username))
+            cursor.execute(query, (serial, name, username))
         else:
             self.addHardDrive(backup_serial, username, backup_name) # if the original hard drive hasn't been added, add it.
             query = ("insert ignore into master_drive (serial, drive_name, "
                             "username, is_backup_of) values (%s,  %s, %s, %s)"  )
-            cursor.execute(query, (serial, mount, username, backup_serial))
+            cursor.execute(query, (serial, name, username, backup_serial))
         self.add(mount, serial)
 
     def add(self, path, serial):
