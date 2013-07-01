@@ -15,27 +15,23 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import main.FirebirdEventMaster;
 
-
 public class Driver {
 
-	/**
-	 * @param args
-	 *            Unused.
-	 * @throws InterruptedException
-	 *             If the user interrupts program, simply print stack and quit.
-	 * @throws SQLException
-	 *             If there is an error using Firebird.
-	 * @throws FileNotFoundException
-	 */
-	public static void main(String[] args) throws InterruptedException,
-			SQLException, FileNotFoundException {
-        
-		FirebirdEventMaster fem = FirebirdEventMaster.getInstance();
-                   fem.toString();
-                
-                
-                    
-                    while(true) { }
+    /**
+     * @param args Unused.
+     * @throws InterruptedException If the user interrupts program, simply print
+     * stack and quit.
+     * @throws SQLException If there is an error using Firebird.
+     * @throws FileNotFoundException
+     */
+    public static void main(String[] args) throws InterruptedException,
+            SQLException, FileNotFoundException {
 
-	}
+        FirebirdEventMaster fem = FirebirdEventMaster.getInstance();
+        fem.toString();
+
+        while (true) {
+        }
+
+    }
 }

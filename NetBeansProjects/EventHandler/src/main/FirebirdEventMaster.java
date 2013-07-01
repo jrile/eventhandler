@@ -1,5 +1,6 @@
 package main;
 
+import ehgui.EmailEditor;
 import ehgui.EventEditor;
 import java.awt.AWTException;
 import java.awt.Image;
@@ -10,8 +11,6 @@ import java.awt.Toolkit;
 import java.awt.TrayIcon;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -19,11 +18,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.List;
+import javax.persistence.EntityManager;
+import javax.persistence.Query;
 
 import org.firebirdsql.event.EventManager;
 import org.firebirdsql.event.FBEventManager;
 import org.firebirdsql.jdbc.FBSQLException;
-import java.util.Scanner;
 import javax.swing.JFrame;
 
 public class FirebirdEventMaster {
@@ -37,7 +38,7 @@ public class FirebirdEventMaster {
         }
         return instance;
     }
-    // TODO: will the username/password combinations be different or the same?
+    // TODO: read from XML file
     static String eventHost = "localhost";
     static int eventPort = 3050;
     static String eventDatabase = "/var/lib/firebird/data/events.fdb";
@@ -53,6 +54,9 @@ public class FirebirdEventMaster {
     private EventManager em = new FBEventManager();
 
     protected FirebirdEventMaster() {
+        
+        
+        
 
         try {
             // TODO: make config file an argument
@@ -64,8 +68,16 @@ public class FirebirdEventMaster {
             em.setPassword(listenPass);
             em.setDatabase(listenDatabase);
             em.connect();
-            readConfig("/home/colgado/NetBeansProjects/EventHandler/src/eventhandler/ehconfig");
-            read();
+                    
+        EntityManager entityManager = java.beans.Beans.isDesignTime() ? null : javax.persistence.Persistence.createEntityManagerFactory("events.fdbPU").createEntityManager();
+        Query query = java.beans.Beans.isDesignTime() ? null : entityManager.createQuery("SELECT e FROM Events e");
+        List<ehgui.Events> list = java.beans.Beans.isDesignTime() ? java.util.Collections.emptyList() : org.jdesktop.observablecollections.ObservableCollections.observableList(query.getResultList());
+        for (ehgui.Events event : list) {
+            System.out.println(event.toString());
+            listen(event);
+        }
+        
+            //read();
             createGUI();
         } catch (SQLException ex) {
             ex.printStackTrace();
@@ -75,6 +87,7 @@ public class FirebirdEventMaster {
 
     private void createGUI() {
         final JFrame parent = new JFrame();
+        parent.setTitle("Firebird Event Handler");
         SystemTray systray = SystemTray.getSystemTray();
         Image image = Toolkit.getDefaultToolkit().getImage("EventHandler/src/eventhandler/firebird.jpeg");
         PopupMenu menu = new PopupMenu();
@@ -83,13 +96,25 @@ public class FirebirdEventMaster {
         events.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                parent.setTitle("Firebird Event Editor");
                 parent.setContentPane(new EventEditor());
                 parent.pack();
                 parent.setVisible(true);
             }
         });
+        
+        MenuItem emails = new MenuItem("Edit Emails");
+        menu.add(emails);
+        emails.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                parent.setContentPane(new EmailEditor());
+                parent.pack();
+                parent.setVisible(true);
+            }
+        });
 
+        menu.addSeparator();
+        
         MenuItem exit = new MenuItem("Exit");
         menu.add(exit);
         exit.addActionListener(new ActionListener() {
@@ -103,6 +128,14 @@ public class FirebirdEventMaster {
         try {
             systray.add(icon);
         } catch (AWTException ex) {
+            ex.printStackTrace();
+        }
+    }
+    
+    public void listen(ehgui.Events event) {
+        try {
+            em.addEventListener(event.toString(), event);
+        } catch (SQLException ex) {
             ex.printStackTrace();
         }
     }
@@ -176,27 +209,6 @@ public class FirebirdEventMaster {
             out += event.print() + "\n";
         }
         return out;
-    }
-
-    private void readConfig(String path) {
-        //TODO: change to java Properties...
-        try {
-            Scanner sc = new Scanner(new File(path));
-            eventHost = sc.nextLine().substring(11);
-            eventPort = Integer.parseInt(sc.nextLine().substring(11));
-            eventDatabase = sc.nextLine().substring(15);
-            eventUser = sc.nextLine().substring(11);
-            eventPass = sc.nextLine().substring(11);
-            listenHost = sc.nextLine().substring(12);
-            listenPort = Integer.parseInt(sc.nextLine().substring(12));
-            listenDatabase = sc.nextLine().substring(16);
-            listenUser = sc.nextLine().substring(12);
-            listenPass = sc.nextLine().substring(12);
-            sc.close();
-            System.out.println(eventHost + eventPort + eventDatabase + eventUser + eventPass);
-        } catch (FileNotFoundException ex) {
-            ex.printStackTrace();
-        }
     }
     public static ArrayList<FirebirdEvent> getList() {
         return events;

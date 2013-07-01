@@ -3,6 +3,7 @@
   <persistence-unit name="events.fdbPU" transaction-type="RESOURCE_LOCAL">
     <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
     <class>ehgui.Events</class>
+    <class>ehgui.Emails</class>
     <properties>
       <property name="javax.persistence.jdbc.url" value="jdbc:firebirdsql:localhost/3050:/var/lib/firebird/data/events.fdb"/>
       <property name="javax.persistence.jdbc.password" value="masterkey"/>

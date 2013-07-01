@@ -7,6 +7,14 @@ package ehgui;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.Serializable;
+import java.util.List;
+import java.util.Properties;
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -15,6 +23,8 @@ import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import org.firebirdsql.event.DatabaseEvent;
+import org.firebirdsql.event.EventListener;
 
 /**
  *
@@ -28,7 +38,7 @@ import javax.persistence.Transient;
     @NamedQuery(name = "Events.findByEmailTitle", query = "SELECT e FROM Events e WHERE e.emailTitle = :emailTitle"),
     @NamedQuery(name = "Events.findByEmailText", query = "SELECT e FROM Events e WHERE e.emailText = :emailText"),
     @NamedQuery(name = "Events.findBySenderEmail", query = "SELECT e FROM Events e WHERE e.senderEmail = :senderEmail")})
-public class Events implements Serializable {
+public class Events implements Serializable, EventListener {
     @Transient
     private PropertyChangeSupport changeSupport = new PropertyChangeSupport(this);
     private static final long serialVersionUID = 1L;
@@ -112,7 +122,7 @@ public class Events implements Serializable {
 
     @Override
     public String toString() {
-        return "ehgui.Events[ eventName=" + eventName + " ]";
+        return eventName;
     }
 
     public void addPropertyChangeListener(PropertyChangeListener listener) {
@@ -121,6 +131,33 @@ public class Events implements Serializable {
 
     public void removePropertyChangeListener(PropertyChangeListener listener) {
         changeSupport.removePropertyChangeListener(listener);
+    }
+    
+    
+
+    @Override
+    public void eventOccurred(DatabaseEvent de) {
+        System.out.println(de.getEventName() + " occurred!");
+        Properties properties = System.getProperties();
+        Session session = Session.getDefaultInstance(properties);
+        List emails = new EmailEditor().getEmailsByEventName(eventName);
+        
+        for (Object recipient : emails) {
+            System.out.println(recipient.toString());
+            try {
+                MimeMessage msg = new MimeMessage(session);
+                msg.setFrom(new InternetAddress(senderEmail));
+                msg.addRecipient(Message.RecipientType.TO, new InternetAddress(
+                        recipient.toString()));
+                msg.setSubject(emailTitle);
+                msg.setText(emailText);
+                Transport.send(msg);
+
+            } catch (MessagingException e) {
+                System.out.println("\nError sending email to \'" + recipient
+                        + "\'.\nReason:" + e.getMessage());
+            }
+        }
     }
     
 }
