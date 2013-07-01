@@ -1,10 +1,7 @@
 package main;
 
-import ehgui.AddEventDialog;
-import ehgui.DeleteEventDialog;
-import eventhandler.Driver;
+import ehgui.EventEditor;
 import java.awt.AWTException;
-import java.awt.Frame;
 import java.awt.Image;
 import java.awt.MenuItem;
 import java.awt.PopupMenu;
@@ -27,10 +24,7 @@ import org.firebirdsql.event.EventManager;
 import org.firebirdsql.event.FBEventManager;
 import org.firebirdsql.jdbc.FBSQLException;
 import java.util.Scanner;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.swing.AbstractListModel;
-import javax.swing.DefaultListModel;
+import javax.swing.JFrame;
 
 public class FirebirdEventMaster {
     // singleton:
@@ -80,28 +74,22 @@ public class FirebirdEventMaster {
 
 
     private void createGUI() {
-        final Frame parent = new Frame();
-        final AddEventDialog addEventDialog = new AddEventDialog(parent, true);
-        final DeleteEventDialog deleteEventDialog = new DeleteEventDialog(parent, true);
+        final JFrame parent = new JFrame();
         SystemTray systray = SystemTray.getSystemTray();
         Image image = Toolkit.getDefaultToolkit().getImage("EventHandler/src/eventhandler/firebird.jpeg");
         PopupMenu menu = new PopupMenu();
-        MenuItem addEvent = new MenuItem("Add Event");
-        menu.add(addEvent);
-        addEvent.addActionListener(new ActionListener() {
+        MenuItem events = new MenuItem("Edit Events");
+        menu.add(events);
+        events.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                addEventDialog.setVisible(true);
+                parent.setTitle("Firebird Event Editor");
+                parent.setContentPane(new EventEditor());
+                parent.pack();
+                parent.setVisible(true);
             }
         });
-        MenuItem deleteEvent = new MenuItem("Delete Event");
-        menu.add(deleteEvent);
-        deleteEvent.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                deleteEventDialog.setVisible(true);
-            }
-        });
+
         MenuItem exit = new MenuItem("Exit");
         menu.add(exit);
         exit.addActionListener(new ActionListener() {
