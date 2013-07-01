@@ -30,8 +30,10 @@ public class Driver {
 	public static void main(String[] args) throws InterruptedException,
 			SQLException, FileNotFoundException {
         
-		FirebirdEventMaster fem = new FirebirdEventMaster();
-
+		FirebirdEventMaster fem = FirebirdEventMaster.getInstance();
+                   fem.toString();
+                
+                
                     
                     while(true) { }
 

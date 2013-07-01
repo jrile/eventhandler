@@ -1,7 +1,10 @@
 package main;
 
+import ehgui.AddEventDialog;
+import ehgui.DeleteEventDialog;
 import eventhandler.Driver;
 import java.awt.AWTException;
+import java.awt.Frame;
 import java.awt.Image;
 import java.awt.MenuItem;
 import java.awt.PopupMenu;
@@ -26,144 +29,188 @@ import org.firebirdsql.jdbc.FBSQLException;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import main.FirebirdEvent;
-
-
-
-
+import javax.swing.AbstractListModel;
+import javax.swing.DefaultListModel;
 
 public class FirebirdEventMaster {
-	// TODO: will the username/password combinations be different or the same?
-    
-        static String eventHost = "localhost";
-        static int eventPort = 3050;
-	static String eventDatabase = "/var/lib/firebird/data/events.fdb";
-	static String eventUser = "sysdba";
-	static String eventPass = "masterkey";
-	static String listenHost = "localhost";
-        static int listenPort = 3050;
-	static String listenUser = "sysdba";
-	static String listenPass = "masterkey";
-	static String listenDatabase = "/var/lib/firebird/data/testing.fdb";
-	
-	ArrayList<FirebirdEvent> events = new ArrayList<FirebirdEvent>();
-        
-        public FirebirdEventMaster() throws SQLException {
-                        readConfig("/home/colgado/NetBeansProjects/EventHandler/src/eventhandler/ehconfig");
-                        read();
-                        SystemTray systray = SystemTray.getSystemTray();
-                        Image image = Toolkit.getDefaultToolkit().getImage("EventHandler/src/eventhandler/firebird.jpeg");
-                        PopupMenu menu = new PopupMenu();
-                        MenuItem item = new MenuItem("Exit");
-                        menu.add(item);
-                        item.addActionListener(new ActionListener() {
-                            @Override
-                            public void actionPerformed(ActionEvent e) {
-                                System.exit(0);
-                            }
-                        });
-                        
-                        
-                        TrayIcon icon = new TrayIcon(image,"Firebird Event Listener", menu);
-                    try {
-                        systray.add(icon);
-                    } catch (AWTException ex) {
-                        Logger.getLogger(Driver.class.getName()).log(Level.SEVERE, null, ex);
-                    }
+    // singleton:
+
+    private static FirebirdEventMaster instance = null;
+
+    public static FirebirdEventMaster getInstance() {
+        if (instance == null) {
+            instance = new FirebirdEventMaster();
+        }
+        return instance;
+    }
+    // TODO: will the username/password combinations be different or the same?
+    static String eventHost = "localhost";
+    static int eventPort = 3050;
+    static String eventDatabase = "/var/lib/firebird/data/events.fdb";
+    static String eventUser = "sysdba";
+    static String eventPass = "masterkey";
+    static String listenHost = "localhost";
+    static int listenPort = 3050;
+    static String listenUser = "sysdba";
+    static String listenPass = "masterkey";
+    static String listenDatabase = "/var/lib/firebird/data/testing.fdb";
+    static ArrayList<FirebirdEvent> events = new ArrayList<FirebirdEvent>();
+    private Connection conn;
+    private EventManager em = new FBEventManager();
+
+    protected FirebirdEventMaster() {
+
+        try {
+            // TODO: make config file an argument
+                    this.conn = DriverManager
+      .getConnection(
+      "jdbc:firebirdsql:" + eventHost + "/" + eventPort + ":/" + eventDatabase, eventUser, eventPass);
+            em.setHost(listenHost);
+            em.setUser(listenUser);
+            em.setPassword(listenPass);
+            em.setDatabase(listenDatabase);
+            em.connect();
+            readConfig("/home/colgado/NetBeansProjects/EventHandler/src/eventhandler/ehconfig");
+            read();
+            createGUI();
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+
+    private void createGUI() {
+        final Frame parent = new Frame();
+        final AddEventDialog addEventDialog = new AddEventDialog(parent, true);
+        final DeleteEventDialog deleteEventDialog = new DeleteEventDialog(parent, true);
+        SystemTray systray = SystemTray.getSystemTray();
+        Image image = Toolkit.getDefaultToolkit().getImage("EventHandler/src/eventhandler/firebird.jpeg");
+        PopupMenu menu = new PopupMenu();
+        MenuItem addEvent = new MenuItem("Add Event");
+        menu.add(addEvent);
+        addEvent.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                addEventDialog.setVisible(true);
+            }
+        });
+        MenuItem deleteEvent = new MenuItem("Delete Event");
+        menu.add(deleteEvent);
+        deleteEvent.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                deleteEventDialog.setVisible(true);
+            }
+        });
+        MenuItem exit = new MenuItem("Exit");
+        menu.add(exit);
+        exit.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.exit(0);
+            }
+        });
+
+        TrayIcon icon = new TrayIcon(image, "Firebird Event Listener", menu);
+        try {
+            systray.add(icon);
+        } catch (AWTException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    private void read() throws SQLException {
+        Statement stmt = conn.createStatement();
+        PreparedStatement getEmails = conn
+                .prepareStatement("select email_address from emails where event_name = ?");
+        ResultSet rs = stmt
+                .executeQuery("select event_name, email_title, email_text, sender_email from events");
+        try {
+            while (rs.next()) {
+                String event_name = rs.getString(1);
+                String email_title = rs.getString(2);
+                String email_text = rs.getString(3);
+                String sender = rs.getString(4);
+                
+                System.out.println(event_name);
+                getEmails.setString(1, event_name);
+                ResultSet emails = getEmails.executeQuery();
+                FirebirdEvent event = new FirebirdEvent(event_name, email_title, email_text, sender);
+                events.add(event);
+                while (emails.next()) {
+                    event.addEmail(emails.getString(1));
+                }
+                em.addEventListener(event.toString(), event);
+
+            }
+        } catch (FBSQLException e) {
+            // result set is closed, ignore
+            e.printStackTrace();
+        } finally {
+            stmt.close();
+            getEmails.close();
         }
 
-	private void read() throws SQLException {
-		Connection conn = DriverManager
-				.getConnection(
-						"jdbc:firebirdsql:"+eventHost+"/"+eventPort+":/"+eventDatabase, eventUser, eventPass);
-		Statement stmt = conn.createStatement();
-		PreparedStatement getEmails = conn
-				.prepareStatement("select email_address from emails where event_name = ?");
-		ResultSet rs = stmt
-				.executeQuery("select event_name, email_title, email_text, sender_email from events");
-		try {
-			while (rs.next()) {
-				String event_name = rs.getString(1);
-				String email_title = rs.getString(2);
-				String email_text = rs.getString(3);
-				String sender = rs.getString(4);
-				getEmails.setString(1, event_name);
-				ResultSet emails = getEmails.executeQuery();
-				ArrayList<String> emailList = new ArrayList<String>();
-				while (emails.next()) {
-					emailList.add(emails.getString(1));
-				}
-				events.add(new FirebirdEvent(event_name, emailList,
-						email_title, email_text, sender));
-			}
-		} catch (FBSQLException e) {
-			// result set is closed, ignore
-		
-		} finally {
-			stmt.close();
-			getEmails.close();
-		}
-		
-		listen();
 
-	}
-        
-        
+    }
 
-	private void listen() throws SQLException {
-		EventManager em = new FBEventManager();
-		em.setHost(listenHost);
-		em.setUser(listenUser);
-		em.setPassword(listenPass);
-		em.setDatabase(listenDatabase);
-		em.connect();
-		for (FirebirdEvent event : events) {
-			em.addEventListener(event.toString(), event);
-		}
-	}
 
-	public void addEvent(FirebirdEvent event) {
-		events.add(event);
-	}
+    public void addEvent(FirebirdEvent event) {
+        try {
+            event.addToDatabase(conn);
+            events.add(event);
+            em.addEventListener(event.toString(), event);
+            
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+    }
 
-	public boolean removeEvent(String eventname) {
-		for (FirebirdEvent event : events) {
-			if (event.toString().equals(eventname)) {
-				return events.remove(event);
-			}
-		}
-		return false;
-	}
-
-	@Override
-	public String toString() {
-		String out = "";
-		for (FirebirdEvent event : events) {
-			out += event.print() + "\n";
-		}
-		return out;
-	}
-
-        
-        private void readConfig(String path) {
-            //TODO: change to java Properties...
-            try {
-                Scanner sc = new Scanner(new File(path));
-                eventHost = sc.nextLine().substring(11);
-                eventPort = Integer.parseInt(sc.nextLine().substring(11));
-                eventDatabase = sc.nextLine().substring(15);
-                eventUser = sc.nextLine().substring(11);
-                eventPass = sc.nextLine().substring(11);
-                listenHost = sc.nextLine().substring(12);
-                listenPort = Integer.parseInt(sc.nextLine().substring(12));
-                listenDatabase = sc.nextLine().substring(16);
-                listenUser = sc.nextLine().substring(12);
-                listenPass = sc.nextLine().substring(12);
-                sc.close();
-                System.out.println(eventHost + eventPort + eventDatabase + eventUser + eventPass);
-            } catch (FileNotFoundException ex) {
-                ex.printStackTrace();
+    public boolean removeEvent(String eventname) {
+        for (FirebirdEvent event : events) {
+            if (event.toString().equals(eventname)) {
+                try {
+                    event.removeFromDatabase(conn);
+                    em.removeEventListener(event.toString(), event);
+                    return events.remove(event);
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
             }
         }
+        return false;
+    }
 
+    @Override
+    public String toString() {
+        String out = "";
+        for (FirebirdEvent event : events) {
+            out += event.print() + "\n";
+        }
+        return out;
+    }
+
+    private void readConfig(String path) {
+        //TODO: change to java Properties...
+        try {
+            Scanner sc = new Scanner(new File(path));
+            eventHost = sc.nextLine().substring(11);
+            eventPort = Integer.parseInt(sc.nextLine().substring(11));
+            eventDatabase = sc.nextLine().substring(15);
+            eventUser = sc.nextLine().substring(11);
+            eventPass = sc.nextLine().substring(11);
+            listenHost = sc.nextLine().substring(12);
+            listenPort = Integer.parseInt(sc.nextLine().substring(12));
+            listenDatabase = sc.nextLine().substring(16);
+            listenUser = sc.nextLine().substring(12);
+            listenPass = sc.nextLine().substring(12);
+            sc.close();
+            System.out.println(eventHost + eventPort + eventDatabase + eventUser + eventPass);
+        } catch (FileNotFoundException ex) {
+            ex.printStackTrace();
+        }
+    }
+    public static ArrayList<FirebirdEvent> getList() {
+        return events;
+    }
 }
