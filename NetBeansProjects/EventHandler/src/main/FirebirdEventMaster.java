@@ -1,5 +1,7 @@
 package main;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -11,7 +13,9 @@ import java.util.ArrayList;
 import org.firebirdsql.event.EventManager;
 import org.firebirdsql.event.FBEventManager;
 import org.firebirdsql.jdbc.FBSQLException;
-
+import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import main.FirebirdEvent;
 
 
@@ -20,20 +24,24 @@ import main.FirebirdEvent;
 
 public class FirebirdEventMaster {
 	// TODO: will the username/password combinations be different or the same?
-	final String eventDatabase = "jdbc:firebirdsql:localhost/3050:/var/lib/firebird/data/events.fdb";
-	final String eventUser = "sysdba";
-	final String eventPass = "masterkey";
-	final String listenHost = "localhost";
-	final String listenUser = "sysdba";
-	final String listenPass = "masterkey";
-	final String listenDatabase = "/var/lib/firebird/data/testing.fdb";
+    
+        static String eventHost = "localhost";
+        static int eventPort = 3050;
+	static String eventDatabase = "/var/lib/firebird/data/events.fdb";
+	static String eventUser = "sysdba";
+	static String eventPass = "masterkey";
+	static String listenHost = "localhost";
+        static int listenPort = 3050;
+	static String listenUser = "sysdba";
+	static String listenPass = "masterkey";
+	static String listenDatabase = "/var/lib/firebird/data/testing.fdb";
 	
 	ArrayList<FirebirdEvent> events = new ArrayList<FirebirdEvent>();
 
 	public void read() throws SQLException {
 		Connection conn = DriverManager
 				.getConnection(
-						eventDatabase, eventUser, eventPass);
+						"jdbc:firebirdsql:"+eventHost+"/"+eventPort+":/"+eventDatabase, eventUser, eventPass);
 		Statement stmt = conn.createStatement();
 		PreparedStatement getEmails = conn
 				.prepareStatement("select email_address from emails where event_name = ?");
@@ -99,5 +107,26 @@ public class FirebirdEventMaster {
 		}
 		return out;
 	}
+        
+        public void readConfig(String path) {
+            //TODO: change to java Properties...
+            try {
+                Scanner sc = new Scanner(new File(path));
+                eventHost = sc.nextLine().substring(11);
+                eventPort = Integer.parseInt(sc.nextLine().substring(11));
+                eventDatabase = sc.nextLine().substring(15);
+                eventUser = sc.nextLine().substring(11);
+                eventPass = sc.nextLine().substring(11);
+                listenHost = sc.nextLine().substring(12);
+                listenPort = Integer.parseInt(sc.nextLine().substring(12));
+                listenDatabase = sc.nextLine().substring(16);
+                listenUser = sc.nextLine().substring(12);
+                listenPass = sc.nextLine().substring(12);
+                sc.close();
+                System.out.println(eventHost + eventPort + eventDatabase + eventUser + eventPass);
+            } catch (FileNotFoundException ex) {
+                ex.printStackTrace();
+            }
+        }
 
 }

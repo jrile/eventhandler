@@ -21,6 +21,7 @@ public class Listener {
         
 		FirebirdEventMaster fem = new FirebirdEventMaster();
 		try {
+                        fem.readConfig("/home/colgado/NetBeansProjects/EventHandler/src/eventhandler/ehconfig");
 			fem.read();
 			System.out.println(fem);
 
@@ -29,7 +30,5 @@ public class Listener {
 		catch(SQLException e) {
 			e.printStackTrace();
 		}
-		
-		for(;;) { }
 	}
 }
