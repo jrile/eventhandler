@@ -1,11 +1,22 @@
 package eventhandler;
 
+import java.awt.AWTException;
+import java.awt.Image;
+import java.awt.MenuItem;
+import java.awt.PopupMenu;
+import java.awt.SystemTray;
+import java.awt.Toolkit;
+import java.awt.TrayIcon;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.FileNotFoundException;
 import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import main.FirebirdEventMaster;
 
 
-public class Listener {
+public class Driver {
 
 	/**
 	 * @param args
@@ -20,15 +31,9 @@ public class Listener {
 			SQLException, FileNotFoundException {
         
 		FirebirdEventMaster fem = new FirebirdEventMaster();
-		try {
-                        fem.readConfig("/home/colgado/NetBeansProjects/EventHandler/src/eventhandler/ehconfig");
-			fem.read();
-			System.out.println(fem);
 
+                    
+                    while(true) { }
 
-		}
-		catch(SQLException e) {
-			e.printStackTrace();
-		}
 	}
 }

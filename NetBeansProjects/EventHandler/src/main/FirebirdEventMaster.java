@@ -1,5 +1,15 @@
 package main;
 
+import eventhandler.Driver;
+import java.awt.AWTException;
+import java.awt.Image;
+import java.awt.MenuItem;
+import java.awt.PopupMenu;
+import java.awt.SystemTray;
+import java.awt.Toolkit;
+import java.awt.TrayIcon;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.sql.Connection;
@@ -37,8 +47,32 @@ public class FirebirdEventMaster {
 	static String listenDatabase = "/var/lib/firebird/data/testing.fdb";
 	
 	ArrayList<FirebirdEvent> events = new ArrayList<FirebirdEvent>();
+        
+        public FirebirdEventMaster() throws SQLException {
+                        readConfig("/home/colgado/NetBeansProjects/EventHandler/src/eventhandler/ehconfig");
+                        read();
+                        SystemTray systray = SystemTray.getSystemTray();
+                        Image image = Toolkit.getDefaultToolkit().getImage("EventHandler/src/eventhandler/firebird.jpeg");
+                        PopupMenu menu = new PopupMenu();
+                        MenuItem item = new MenuItem("Exit");
+                        menu.add(item);
+                        item.addActionListener(new ActionListener() {
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                                System.exit(0);
+                            }
+                        });
+                        
+                        
+                        TrayIcon icon = new TrayIcon(image,"Firebird Event Listener", menu);
+                    try {
+                        systray.add(icon);
+                    } catch (AWTException ex) {
+                        Logger.getLogger(Driver.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+        }
 
-	public void read() throws SQLException {
+	private void read() throws SQLException {
 		Connection conn = DriverManager
 				.getConnection(
 						"jdbc:firebirdsql:"+eventHost+"/"+eventPort+":/"+eventDatabase, eventUser, eventPass);
@@ -73,6 +107,8 @@ public class FirebirdEventMaster {
 		listen();
 
 	}
+        
+        
 
 	private void listen() throws SQLException {
 		EventManager em = new FBEventManager();
@@ -107,8 +143,9 @@ public class FirebirdEventMaster {
 		}
 		return out;
 	}
+
         
-        public void readConfig(String path) {
+        private void readConfig(String path) {
             //TODO: change to java Properties...
             try {
                 Scanner sc = new Scanner(new File(path));
