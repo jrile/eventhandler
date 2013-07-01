@@ -13,7 +13,6 @@ import java.io.FileNotFoundException;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import main.FirebirdEventMaster;
 
 public class Driver {
 

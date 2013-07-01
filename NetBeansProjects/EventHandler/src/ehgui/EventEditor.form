@@ -75,13 +75,13 @@
                               </Group>
                               <EmptySpace min="-2" max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="0" attributes="0">
-                                  <Component id="eventNameField" alignment="0" pref="315" max="32767" attributes="0"/>
-                                  <Component id="emailTitleField" alignment="0" pref="315" max="32767" attributes="0"/>
-                                  <Component id="emailTextField" alignment="0" pref="315" max="32767" attributes="0"/>
-                                  <Component id="senderEmailField" alignment="0" pref="315" max="32767" attributes="0"/>
+                                  <Component id="eventNameField" alignment="0" pref="368" max="32767" attributes="0"/>
+                                  <Component id="emailTitleField" alignment="0" pref="368" max="32767" attributes="0"/>
+                                  <Component id="emailTextField" alignment="0" pref="368" max="32767" attributes="0"/>
+                                  <Component id="senderEmailField" alignment="0" pref="368" max="32767" attributes="0"/>
                               </Group>
                           </Group>
-                          <Component id="masterScrollPane" pref="380" max="32767" attributes="0"/>
+                          <Component id="masterScrollPane" pref="445" max="32767" attributes="0"/>
                       </Group>
                   </Group>
               </Group>
@@ -93,7 +93,7 @@
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace min="-2" max="-2" attributes="0"/>
-              <Component id="masterScrollPane" pref="130" max="32767" attributes="0"/>
+              <Component id="masterScrollPane" pref="162" max="32767" attributes="0"/>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="eventNameLabel" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -107,7 +107,7 @@
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="emailTextLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="emailTextField" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="emailTextField" alignment="3" min="-2" pref="83" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
@@ -207,6 +207,9 @@
       </BindingProperties>
     </Component>
     <Component class="javax.swing.JTextField" name="senderEmailField">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="noreply@eastcor.com"/>
+      </Properties>
       <BindingProperties>
         <BindingProperty name="text" source="masterTable" sourcePath="${selectedElement.senderEmail}" target="senderEmailField" targetPath="text" updateStrategy="0" immediately="false">
           <Property name="incompletePathValue" type="java.lang.String" value="null"/>
