@@ -33,6 +33,8 @@ public class FirebirdEventMaster {
         }
         return instance;
     }
+    
+    
     private final String listenHost = "localhost";
     private final int listenPort = 3050;
     private final String listenUser = "sysdba";
@@ -53,7 +55,6 @@ public class FirebirdEventMaster {
             em.setUser(listenUser);
             em.setPassword(listenPass);
             em.setDatabase(listenDatabase);
-    
             em.connect();
 
             EntityManager entityManager = javax.persistence.Persistence.createEntityManagerFactory("events.fdbPU").createEntityManager();
@@ -62,8 +63,8 @@ public class FirebirdEventMaster {
             for (ehgui.Events event : list) {
                 listen(event);
             }
-
             createGUI();
+            
         } catch (SQLException ex) {
             System.out.println("There was an error connecting to the firebird database.");
             Logger.getLogger(FirebirdEventMaster.class.getName()).log(Level.SEVERE, null, ex);
@@ -78,8 +79,9 @@ public class FirebirdEventMaster {
      * @throws AWTException If there is an error creating the system tray icon.
      */
     private void createGUI() throws AWTException {
-
+        Image image = new ImageIcon("../firebird.png").getImage();
         parent.setTitle("Firebird Event Handler");
+        parent.setIconImage(image);
         SystemTray systray = SystemTray.getSystemTray();
         PopupMenu menu = new PopupMenu();
         MenuItem eventsMenu = new MenuItem("Edit event calls");
@@ -103,9 +105,9 @@ public class FirebirdEventMaster {
                 parent.setVisible(true);
             }
         });
-
+        
         menu.addSeparator();
-
+        
         MenuItem exit = new MenuItem("Exit");
         menu.add(exit);
         exit.addActionListener(new ActionListener() {
@@ -114,23 +116,23 @@ public class FirebirdEventMaster {
                 System.exit(0);
             }
         });
-        Image image = new ImageIcon("firebird.png").getImage();
+        
         TrayIcon icon = new TrayIcon(image, "Firebird Event Listener", menu);
         icon.setImageAutoSize(true);
-        // not working:
-        System.out.println(new File("firebird.png").exists());
         systray.add(icon);
-
     }
-
 
     /**
      * Adds an event name to our event manager so we can listen for it on the database.
      * @param event The event itself.
-     * @throws SQLException If there is an error connecting to the database that we're listening to.
      */
-    public void listen(ehgui.Events event) throws SQLException {
-        em.removeEventListener(event.toString(), event);
-        em.addEventListener(event.toString(), event);
+    public void listen(ehgui.Events event)  {
+        try {
+            em.removeEventListener(event.toString(), event);
+            em.addEventListener(event.toString(), event);
+        } catch (SQLException ex) {
+            System.out.println("There was an error connecting to the firebird database.");
+            Logger.getLogger(FirebirdEventMaster.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 }

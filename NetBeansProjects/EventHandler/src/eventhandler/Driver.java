@@ -1,15 +1,12 @@
 package eventhandler;
 
-
 public class Driver {
 
 /**
  * Gets an instance of the event master and runs the program.
- * @param args
- * @throws InterruptedException If the user types a command to interrupt the program.
+ * @param args Unused
  */
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args)  {
         FirebirdEventMaster.getInstance();
-        while (true) { }
     }
 }

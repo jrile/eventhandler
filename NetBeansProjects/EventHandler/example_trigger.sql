@@ -1,0 +1,11 @@
+SET TERM ^ ;
+
+CREATE TRIGGER test_trig FOR test
+ACTIVE AFTER INSERT POSITION 0
+AS
+BEGIN
+	POST_EVENT 'test_inserted';
+END^
+
+SET TERM ; ^
+

@@ -4,13 +4,11 @@
  */
 package ehgui;
 
-import java.awt.EventQueue;
 import java.beans.Beans;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Query;
 import javax.persistence.RollbackException;
-import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 /**
