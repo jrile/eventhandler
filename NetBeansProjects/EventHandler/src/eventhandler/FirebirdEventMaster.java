@@ -10,8 +10,11 @@ import java.awt.SystemTray;
 import java.awt.TrayIcon;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.swing.ImageIcon;
@@ -22,7 +25,6 @@ import javax.swing.JFrame;
 
 public class FirebirdEventMaster {
     // singleton:
-
     private static FirebirdEventMaster instance = null;
 
     public static FirebirdEventMaster getInstance() {
@@ -31,49 +33,54 @@ public class FirebirdEventMaster {
         }
         return instance;
     }
-    // TODO: read from XML file
-    static String eventHost = "localhost";
-    static int eventPort = 3050;
-    static String eventDatabase = "/var/lib/firebird/data/events.fdb";
-    static String eventUser = "sysdba";
-    static String eventPass = "masterkey";
-    static String listenHost = "localhost";
-    static int listenPort = 3050;
-    static String listenUser = "sysdba";
-    static String listenPass = "masterkey";
-    static String listenDatabase = "/var/lib/firebird/data/testing.fdb";
-
+    private final String listenHost = "localhost";
+    private final int listenPort = 3050;
+    private final String listenUser = "sysdba";
+    private final String listenPass = "masterkey";
+    private final String listenDatabase = "/var/lib/firebird/data/testing.fdb";
     private EventManager em = new FBEventManager();
+    public final JFrame parent = new JFrame();
 
+    /**
+     * Constructs an event master to handle all of the events and listen for them.
+     * 
+     */
     protected FirebirdEventMaster() {
 
         try {
             em.setHost(listenHost);
+            em.setPort(listenPort);
             em.setUser(listenUser);
             em.setPassword(listenPass);
             em.setDatabase(listenDatabase);
+    
             em.connect();
 
             EntityManager entityManager = javax.persistence.Persistence.createEntityManagerFactory("events.fdbPU").createEntityManager();
             Query query = entityManager.createQuery("SELECT e FROM Events e");
-            List<ehgui.Events> list = java.beans.Beans.isDesignTime() ? java.util.Collections.emptyList() : org.jdesktop.observablecollections.ObservableCollections.observableList(query.getResultList());
+            List<ehgui.Events> list =  org.jdesktop.observablecollections.ObservableCollections.observableList(query.getResultList());
             for (ehgui.Events event : list) {
                 listen(event);
             }
 
             createGUI();
         } catch (SQLException ex) {
-            ex.printStackTrace();
+            System.out.println("There was an error connecting to the firebird database.");
+            Logger.getLogger(FirebirdEventMaster.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (AWTException ex) {
+            System.out.println("There was an error creating the system tray icon.");
+            Logger.getLogger(FirebirdEventMaster.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
-    private void createGUI() {
-        final JFrame parent = new JFrame();
+    /**
+     * Creates a parent frame and a system tray icon with a menu.
+     * @throws AWTException If there is an error creating the system tray icon.
+     */
+    private void createGUI() throws AWTException {
+
         parent.setTitle("Firebird Event Handler");
         SystemTray systray = SystemTray.getSystemTray();
-        Image image = new ImageIcon("///home/colgado/NetBeansProjects/EventHandler/src/eventhandler/firebird.png").getImage();
-        
-
         PopupMenu menu = new PopupMenu();
         MenuItem eventsMenu = new MenuItem("Edit event calls");
         menu.add(eventsMenu);
@@ -107,17 +114,23 @@ public class FirebirdEventMaster {
                 System.exit(0);
             }
         });
-
+        Image image = new ImageIcon("firebird.png").getImage();
         TrayIcon icon = new TrayIcon(image, "Firebird Event Listener", menu);
-        try {
-            systray.add(icon);
-        } catch (AWTException ex) {
-            ex.printStackTrace();
-        }
+        icon.setImageAutoSize(true);
+        // not working:
+        System.out.println(new File("firebird.png").exists());
+        systray.add(icon);
+
     }
 
-    
-    public void listen(ehgui.Events event) throws SQLException  {
+
+    /**
+     * Adds an event name to our event manager so we can listen for it on the database.
+     * @param event The event itself.
+     * @throws SQLException If there is an error connecting to the database that we're listening to.
+     */
+    public void listen(ehgui.Events event) throws SQLException {
+        em.removeEventListener(event.toString(), event);
         em.addEventListener(event.toString(), event);
     }
 }

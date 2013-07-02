@@ -11,4 +11,13 @@
       <property name="javax.persistence.jdbc.user" value="sysdba"/>
     </properties>
   </persistence-unit>
+  <persistence-unit name="listenPU" transaction-type="RESOURCE_LOCAL">
+    <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
+    <properties>
+      <property name="javax.persistence.jdbc.url" value="jdbc:firebirdsql:localhost/3050:/var/lib/firebird/data/testing.fdb"/>
+      <property name="javax.persistence.jdbc.password" value="masterkey"/>
+      <property name="javax.persistence.jdbc.driver" value="org.firebirdsql.jdbc.FBDriver"/>
+      <property name="javax.persistence.jdbc.user" value="sysdba"/>
+    </properties>
+  </persistence-unit>
 </persistence>

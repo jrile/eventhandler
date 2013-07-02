@@ -4,6 +4,7 @@
  */
 package ehgui;
 
+import eventhandler.FirebirdEventMaster;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.Serializable;
@@ -23,6 +24,7 @@ import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import javax.swing.JOptionPane;
 import org.firebirdsql.event.DatabaseEvent;
 import org.firebirdsql.event.EventListener;
 
@@ -39,6 +41,7 @@ import org.firebirdsql.event.EventListener;
     @NamedQuery(name = "Events.findByEmailText", query = "SELECT e FROM Events e WHERE e.emailText = :emailText"),
     @NamedQuery(name = "Events.findBySenderEmail", query = "SELECT e FROM Events e WHERE e.senderEmail = :senderEmail")})
 public class Events implements Serializable, EventListener {
+
     @Transient
     private PropertyChangeSupport changeSupport = new PropertyChangeSupport(this);
     private static final long serialVersionUID = 1L;
@@ -109,12 +112,11 @@ public class Events implements Serializable, EventListener {
 
     @Override
     public boolean equals(Object object) {
-        // TODO: Warning - this method won't work in the case the id fields are not set
         if (!(object instanceof Events)) {
             return false;
         }
         Events other = (Events) object;
-        if ((this.eventName == null && other.eventName != null) || (this.eventName != null && !this.eventName.equals(other.eventName))) {
+        if ((this.eventName == null && other.eventName != null) || (this.eventName != null && !this.eventName.equalsIgnoreCase(other.eventName))) {
             return false;
         }
         return true;
@@ -132,18 +134,16 @@ public class Events implements Serializable, EventListener {
     public void removePropertyChangeListener(PropertyChangeListener listener) {
         changeSupport.removePropertyChangeListener(listener);
     }
-    
-    
 
     @Override
     public void eventOccurred(DatabaseEvent de) {
-        System.out.println(de.getEventName() + " occurred!");
+        System.out.println(de.getEventName() + " occurred. Sending emails to: ");
         Properties properties = System.getProperties();
         Session session = Session.getDefaultInstance(properties);
         List emails = new EmailEditor().getEmailsByEventName(eventName);
-        
+
         for (Object recipient : emails) {
-            System.out.println(recipient.toString());
+            System.out.print(recipient.toString() + " ");
             try {
                 MimeMessage msg = new MimeMessage(session);
                 msg.setFrom(new InternetAddress(senderEmail));
@@ -154,10 +154,12 @@ public class Events implements Serializable, EventListener {
                 Transport.send(msg);
 
             } catch (MessagingException e) {
-                System.out.println("\nError sending email to \'" + recipient
-                        + "\'.\nReason:" + e.getMessage());
+                JOptionPane.showMessageDialog(FirebirdEventMaster.getInstance().parent,
+                        "Event " + eventName + " has occurred, and there was an error sending email to \'" + recipient + "\'.\n\nReason: " + e.getMessage(),
+                        "Email error!",
+                        JOptionPane.ERROR_MESSAGE);
             }
         }
+        System.out.println();
     }
-    
 }

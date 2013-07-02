@@ -17,7 +17,7 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 
 /**
- *
+ * Email class that contains the default email text, email subject, and email to "send" from.
  * @author colgado
  */
 @Entity
@@ -28,6 +28,7 @@ import javax.persistence.Transient;
     @NamedQuery(name = "Emails.findByEmailAddress", query = "SELECT e FROM Emails e WHERE e.emailAddress = :emailAddress"),
     @NamedQuery(name = "Emails.findByEventName", query = "SELECT e FROM Emails e WHERE e.eventName = :eventName")})
 public class Emails implements Serializable {
+
     @Transient
     private PropertyChangeSupport changeSupport = new PropertyChangeSupport(this);
     private static final long serialVersionUID = 1L;
@@ -43,14 +44,26 @@ public class Emails implements Serializable {
     public Emails() {
     }
 
+    /**
+     *
+     * @param id The automatically assigned unique ID number from the database.
+     */
     public Emails(Integer id) {
         this.id = id;
     }
 
+    /**
+     * 
+     * @return The automatically assigned unique ID number from the database. 
+     */
     public Integer getId() {
         return id;
     }
 
+    /**
+     * Sets ID number to 'id'.
+     * @param id The ID number to change to.
+     */
     public void setId(Integer id) {
         Integer oldId = this.id;
         this.id = id;
@@ -86,7 +99,6 @@ public class Emails implements Serializable {
 
     @Override
     public boolean equals(Object object) {
-        // TODO: Warning - this method won't work in the case the id fields are not set
         if (!(object instanceof Emails)) {
             return false;
         }
@@ -109,7 +121,4 @@ public class Emails implements Serializable {
     public void removePropertyChangeListener(PropertyChangeListener listener) {
         changeSupport.removePropertyChangeListener(listener);
     }
-    
-
-    
 }

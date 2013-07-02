@@ -7,7 +7,6 @@ package ehgui;
 import java.awt.EventQueue;
 import java.beans.Beans;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import javax.persistence.Query;
 import javax.persistence.RollbackException;
@@ -15,11 +14,11 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 /**
- *
- * @author colgado
+ * GUI panel that displays all the email address/event name combinations in the database.
+ * 
  */
 public class EmailEditor extends JPanel {
-    
+
     public EmailEditor() {
         initComponents();
         if (!Beans.isDesignTime()) {
@@ -172,8 +171,6 @@ public class EmailEditor extends JPanel {
         }
     }// </editor-fold>//GEN-END:initComponents
 
-    
-
     @SuppressWarnings("unchecked")
     private void refreshButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_refreshButtonActionPerformed
         entityManager.getTransaction().rollback();
@@ -185,7 +182,7 @@ public class EmailEditor extends JPanel {
         list.clear();
         list.addAll(data);
     }//GEN-LAST:event_refreshButtonActionPerformed
-    
+
     private void deleteButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteButtonActionPerformed
         int[] selected = masterTable.getSelectedRows();
         List<ehgui.Emails> toRemove = new ArrayList<ehgui.Emails>(selected.length);
@@ -196,7 +193,7 @@ public class EmailEditor extends JPanel {
         }
         list.removeAll(toRemove);
     }//GEN-LAST:event_deleteButtonActionPerformed
-    
+
     private void newButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newButtonActionPerformed
         ehgui.Emails e = new ehgui.Emails();
         entityManager.persist(e);
@@ -205,13 +202,17 @@ public class EmailEditor extends JPanel {
         masterTable.setRowSelectionInterval(row, row);
         masterTable.scrollRectToVisible(masterTable.getCellRect(row, 0, true));
     }//GEN-LAST:event_newButtonActionPerformed
-    
+
+    /**
+     * Gets all transactions and saves, updates event manager to listen for all events.
+     * If there is a rollback exception, merge records and proceed.
+     * @param evt 
+     */
     private void saveButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveButtonActionPerformed
         try {
             entityManager.getTransaction().commit();
             entityManager.getTransaction().begin();
         } catch (RollbackException rex) {
-            rex.printStackTrace();
             entityManager.getTransaction().begin();
             List<ehgui.Emails> merged = new ArrayList<ehgui.Emails>(list.size());
             for (ehgui.Emails e : list) {
@@ -220,10 +221,7 @@ public class EmailEditor extends JPanel {
             list.clear();
             list.addAll(merged);
         }
-        
-        
     }//GEN-LAST:event_saveButtonActionPerformed
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton deleteButton;
     private javax.swing.JTextField emailAddressField;
@@ -240,52 +238,11 @@ public class EmailEditor extends JPanel {
     private javax.swing.JButton saveButton;
     private org.jdesktop.beansbinding.BindingGroup bindingGroup;
     // End of variables declaration//GEN-END:variables
-   
+
     public List getEmailsByEventName(String eventName) {
         Query q = entityManager.createNamedQuery("Emails.findByEventName");
         q.setParameter("eventName", eventName);
         return q.getResultList();
     }
-    
-    
-    
-    
-    
-    
-    
-    public static void main(String[] args) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(EmailEditor.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(EmailEditor.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(EmailEditor.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(EmailEditor.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
 
-        /* Create and display the form */
-        EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                JFrame frame = new JFrame();
-                frame.setContentPane(new EmailEditor());
-                frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-                frame.pack();
-                frame.setVisible(true);
-            }
-        });
-    }
 }
