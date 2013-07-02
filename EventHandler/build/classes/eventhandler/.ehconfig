@@ -1,0 +1,12 @@
+event_host=localhost
+
+event_port=3050
+
+event_database=/var/lib/firebird/data/events.fdb
+event_user=sysdba
+event_pass=masterkey
+listen_host=localhost
+listen_port=3050
+listen_database=/var/lib/firebird/data/testing.fdb
+listen_user=sysdba
+listen_pass=masterkey
