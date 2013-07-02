@@ -38,7 +38,7 @@ public class FirebirdEventMaster {
     private final int listenPort = 3050;
     private final String listenUser = "sysdba";
     private final String listenPass = "masterkey";
-    private final String listenDatabase = "/var/lib/firebird/data/testing.fdb";
+    private final String listenDatabase = "C:\\Users\\jrile\\Downloads\\testing.fdb";
     private EventManager em = new FBEventManager();
     public final JFrame parent = new JFrame();
 
