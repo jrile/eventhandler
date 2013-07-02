@@ -80,7 +80,7 @@ public class FirebirdEventMaster {
      * @throws AWTException If there is an error creating the system tray icon.
      */
     private void createGUI() throws AWTException {
-        Image image = new ImageIcon("../firebird.png").getImage();
+        Image image = new ImageIcon("./firebird.png").getImage();
         parent.setTitle("Firebird Event Handler");
         parent.setIconImage(image);
         SystemTray systray = SystemTray.getSystemTray();
