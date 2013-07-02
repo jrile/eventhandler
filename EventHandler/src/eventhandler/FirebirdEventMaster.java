@@ -40,6 +40,7 @@ public class FirebirdEventMaster {
     private final String listenPass = "masterkey";
     private final String listenDatabase = "C:\\Users\\jrile\\Downloads\\testing.fdb";
     private EventManager em = new FBEventManager();
+    
     public final JFrame parent = new JFrame();
 
     /**
