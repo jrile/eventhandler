@@ -17,7 +17,9 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 
 /**
- * Email class that contains the default email text, email subject, and email to "send" from.
+ * Email class that contains the default email text, email subject, and email to
+ * "send" from.
+ *
  * @author colgado
  */
 @Entity
@@ -53,8 +55,8 @@ public class Emails implements Serializable {
     }
 
     /**
-     * 
-     * @return The automatically assigned unique ID number from the database. 
+     *
+     * @return The automatically assigned unique ID number from the database.
      */
     public Integer getId() {
         return id;
@@ -62,6 +64,7 @@ public class Emails implements Serializable {
 
     /**
      * Sets ID number to 'id'.
+     *
      * @param id The ID number to change to.
      */
     public void setId(Integer id) {

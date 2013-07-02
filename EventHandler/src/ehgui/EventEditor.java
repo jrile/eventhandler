@@ -289,5 +289,4 @@ public class EventEditor extends JPanel {
             FirebirdEventMaster.getInstance().listen(event);
         }
     }
-
 }

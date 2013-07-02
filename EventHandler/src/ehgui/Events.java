@@ -4,10 +4,14 @@
  */
 package ehgui;
 
+import eventhandler.Driver;
 import eventhandler.FirebirdEventMaster;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.Serializable;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import javax.mail.Message;
@@ -29,7 +33,7 @@ import org.firebirdsql.event.DatabaseEvent;
 import org.firebirdsql.event.EventListener;
 
 /**
- *
+ * Events in the database, contains event name and email information to be sent out.
  * @author colgado
  */
 @Entity
@@ -41,9 +45,8 @@ import org.firebirdsql.event.EventListener;
     @NamedQuery(name = "Events.findByEmailText", query = "SELECT e FROM Events e WHERE e.emailText = :emailText"),
     @NamedQuery(name = "Events.findBySenderEmail", query = "SELECT e FROM Events e WHERE e.senderEmail = :senderEmail")})
 public class Events implements Serializable, EventListener {
-    private final static boolean DEBUGGING = true;
-    // boolean that determines whether or not to print to command line when an event occurs.
 
+    // boolean that determines whether or not to print to command line when an event occurs.
     @Transient
     private PropertyChangeSupport changeSupport = new PropertyChangeSupport(this);
     private static final long serialVersionUID = 1L;
@@ -139,13 +142,18 @@ public class Events implements Serializable, EventListener {
 
     @Override
     public void eventOccurred(DatabaseEvent de) {
-        if(DEBUGGING) System.out.println(de.getEventName() + " occurred. Sending emails to: ");
+        if (Driver.DEBUGGING) {
+            DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+            System.out.print("\n[Notifcn]: " + df.format(new Date()) + "--" + de.getEventName() + " occurred. \n\nSending emails to:\n");
+        }
         Properties properties = System.getProperties();
         Session session = Session.getDefaultInstance(properties);
         List emails = new EmailEditor().getEmailsByEventName(eventName);
 
         for (Object recipient : emails) {
-            if(DEBUGGING) System.out.print(recipient.toString() + " ");
+            if (Driver.DEBUGGING) {
+                System.out.print(recipient.toString() + " ");
+            }
             try {
                 MimeMessage msg = new MimeMessage(session);
                 msg.setFrom(new InternetAddress(senderEmail));
@@ -162,6 +170,8 @@ public class Events implements Serializable, EventListener {
                         JOptionPane.ERROR_MESSAGE);
             }
         }
-        if(DEBUGGING) System.out.println();
+        if(Driver.DEBUGGING) 
+            System.out.println("\n");
+
     }
 }

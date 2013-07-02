@@ -12,8 +12,9 @@ import javax.persistence.RollbackException;
 import javax.swing.JPanel;
 
 /**
- * GUI panel that displays all the email address/event name combinations in the database.
- * 
+ * GUI panel that displays all the email address/event name combinations in the
+ * database.
+ *
  */
 public class EmailEditor extends JPanel {
 
@@ -202,9 +203,10 @@ public class EmailEditor extends JPanel {
     }//GEN-LAST:event_newButtonActionPerformed
 
     /**
-     * Gets all transactions and saves, updates event manager to listen for all events.
-     * If there is a rollback exception, merge records and proceed.
-     * @param evt 
+     * Gets all transactions and saves, updates event manager to listen for all
+     * events. If there is a rollback exception, merge records and proceed.
+     *
+     * @param evt
      */
     private void saveButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveButtonActionPerformed
         try {
@@ -242,5 +244,4 @@ public class EmailEditor extends JPanel {
         q.setParameter("eventName", eventName);
         return q.getResultList();
     }
-
 }

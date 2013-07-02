@@ -25,6 +25,7 @@ import javax.swing.JFrame;
 
 public class FirebirdEventMaster {
     // singleton:
+
     private static FirebirdEventMaster instance = null;
 
     public static FirebirdEventMaster getInstance() {
@@ -33,8 +34,6 @@ public class FirebirdEventMaster {
         }
         return instance;
     }
-    
-    
     private final String listenHost = "localhost";
     private final int listenPort = 3050;
     private final String listenUser = "sysdba";
@@ -44,8 +43,9 @@ public class FirebirdEventMaster {
     public final JFrame parent = new JFrame();
 
     /**
-     * Constructs an event master to handle all of the events and listen for them.
-     * 
+     * Constructs an event master to handle all of the events and listen for
+     * them.
+     *
      */
     protected FirebirdEventMaster() {
 
@@ -59,12 +59,12 @@ public class FirebirdEventMaster {
 
             EntityManager entityManager = javax.persistence.Persistence.createEntityManagerFactory("events.fdbPU").createEntityManager();
             Query query = entityManager.createQuery("SELECT e FROM Events e");
-            List<ehgui.Events> list =  org.jdesktop.observablecollections.ObservableCollections.observableList(query.getResultList());
+            List<ehgui.Events> list = org.jdesktop.observablecollections.ObservableCollections.observableList(query.getResultList());
             for (ehgui.Events event : list) {
                 listen(event);
             }
             createGUI();
-            
+
         } catch (SQLException ex) {
             System.out.println("There was an error connecting to the firebird database.");
             Logger.getLogger(FirebirdEventMaster.class.getName()).log(Level.SEVERE, null, ex);
@@ -76,6 +76,7 @@ public class FirebirdEventMaster {
 
     /**
      * Creates a parent frame and a system tray icon with a menu.
+     *
      * @throws AWTException If there is an error creating the system tray icon.
      */
     private void createGUI() throws AWTException {
@@ -105,9 +106,9 @@ public class FirebirdEventMaster {
                 parent.setVisible(true);
             }
         });
-        
+
         menu.addSeparator();
-        
+
         MenuItem exit = new MenuItem("Exit");
         menu.add(exit);
         exit.addActionListener(new ActionListener() {
@@ -116,17 +117,19 @@ public class FirebirdEventMaster {
                 System.exit(0);
             }
         });
-        
+
         TrayIcon icon = new TrayIcon(image, "Firebird Event Listener", menu);
         icon.setImageAutoSize(true);
         systray.add(icon);
     }
 
     /**
-     * Adds an event name to our event manager so we can listen for it on the database.
+     * Adds an event name to our event manager so we can listen for it on the
+     * database.
+     *
      * @param event The event itself.
      */
-    public void listen(ehgui.Events event)  {
+    public void listen(ehgui.Events event) {
         try {
             em.removeEventListener(event.toString(), event);
             em.addEventListener(event.toString(), event);
