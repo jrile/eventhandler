@@ -1,10 +1,10 @@
 SET TERM ^ ;
 
-CREATE TRIGGER test_trig FOR test
+CREATE TRIGGER pr_status_updated FOR CUSTOMFIELD
 ACTIVE AFTER INSERT POSITION 0
 AS
 BEGIN
-	POST_EVENT 'test_inserted';
+	POST_EVENT 'pr_status_updated';
 END^
 
 SET TERM ; ^

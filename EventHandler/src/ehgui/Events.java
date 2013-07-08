@@ -46,7 +46,6 @@ import org.firebirdsql.event.EventListener;
     @NamedQuery(name = "Events.findBySenderEmail", query = "SELECT e FROM Events e WHERE e.senderEmail = :senderEmail")})
 public class Events implements Serializable, EventListener {
 
-    // boolean that determines whether or not to print to command line when an event occurs.
     @Transient
     private PropertyChangeSupport changeSupport = new PropertyChangeSupport(this);
     private static final long serialVersionUID = 1L;
@@ -60,6 +59,10 @@ public class Events implements Serializable, EventListener {
     private String emailText;
     @Column(name = "SENDER_EMAIL")
     private String senderEmail;
+        
+    
+
+    
 
     public Events() {
     }
@@ -146,8 +149,14 @@ public class Events implements Serializable, EventListener {
             DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
             System.out.print("\n[Notifcn]: " + df.format(new Date()) + "--" + de.getEventName() + " occurred. \n\nSending emails to:\n");
         }
-        Properties properties = System.getProperties();
-        Session session = Session.getDefaultInstance(properties);
+        //Properties properties = System.getProperties();
+        Properties properties = new Properties();
+        properties.put("mail.smtp.host", "mail.eastcor.com");
+        properties.put("mail.smtp.port", 25);
+        
+        //Session session = Session.getDefaultInstance(properties);
+        Session session = Session.getInstance(properties);
+ 
         List emails = new EmailEditor().getEmailsByEventName(eventName);
 
         for (Object recipient : emails) {
@@ -165,9 +174,10 @@ public class Events implements Serializable, EventListener {
 
             } catch (MessagingException e) {
                 JOptionPane.showMessageDialog(FirebirdEventMaster.getInstance().parent,
-                        "Event " + eventName + " has occurred, and there was an error sending email to \'" + recipient + "\'.\n\nReason: " + e.getMessage(),
+                        "Event " + eventName + " has occurred, but there was an error sending email to \'" + recipient + "\'.\n\nReason: " + e.getMessage(),
                         "Email error!",
                         JOptionPane.ERROR_MESSAGE);
+                e.printStackTrace();
             }
         }
         if(Driver.DEBUGGING) 

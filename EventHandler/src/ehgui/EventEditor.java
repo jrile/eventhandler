@@ -286,7 +286,12 @@ public class EventEditor extends JPanel {
 
     private void listen() {
         for (ehgui.Events event : list) {
-            FirebirdEventMaster.getInstance().listen(event);
+            try {
+                FirebirdEventMaster.getInstance().em.removeEventListener(event.toString(), event);
+                FirebirdEventMaster.getInstance().em.addEventListener(event.toString(), event);
+            } catch (SQLException ex) {
+                Logger.getLogger(EventEditor.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
     }
 }

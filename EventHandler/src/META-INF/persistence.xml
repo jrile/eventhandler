@@ -1,23 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <persistence version="1.0" xmlns="http://java.sun.com/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd">
-    <persistence-unit name="events.fdbPU" transaction-type="RESOURCE_LOCAL">
-        <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
-        <class>ehgui.Events</class>
-        <class>ehgui.Emails</class>
-        <properties>
-            <property name="javax.persistence.jdbc.url" value="jdbc:firebirdsql:localhost/3050:/var/lib/firebird/data/events.fdb"/>
-            <property name="javax.persistence.jdbc.password" value="masterkey"/>
-            <property name="javax.persistence.jdbc.driver" value="org.firebirdsql.jdbc.FBDriver"/>
-            <property name="javax.persistence.jdbc.user" value="sysdba"/>
-        </properties>
-    </persistence-unit>
-    <persistence-unit name="listenPU" transaction-type="RESOURCE_LOCAL">
-        <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
-        <properties>
-            <property name="javax.persistence.jdbc.url" value="jdbc:firebirdsql:localhost/3050:/var/lib/firebird/data/testing.fdb"/>
-            <property name="javax.persistence.jdbc.password" value="masterkey"/>
-            <property name="javax.persistence.jdbc.driver" value="org.firebirdsql.jdbc.FBDriver"/>
-            <property name="javax.persistence.jdbc.user" value="sysdba"/>
-        </properties>
-    </persistence-unit>
+  <persistence-unit name="events.fdbPU" transaction-type="RESOURCE_LOCAL">
+    <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
+    <class>ehgui.Events</class>
+    <class>ehgui.Emails</class>
+    <properties>
+      <property name="javax.persistence.jdbc.url" value="jdbc:firebirdsql:localhost/3050:c:/events.fdb"/>
+      <property name="javax.persistence.jdbc.password" value="fishing"/>
+      <property name="javax.persistence.jdbc.driver" value="org.firebirdsql.jdbc.FBDriver"/>
+      <property name="javax.persistence.jdbc.user" value="gone"/>
+    </properties>
+  </persistence-unit>
 </persistence>
