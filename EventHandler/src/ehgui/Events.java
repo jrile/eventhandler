@@ -147,16 +147,9 @@ public class Events implements Serializable, EventListener {
     public void eventOccurred(DatabaseEvent de) {
         if (Driver.DEBUGGING) {
             DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-            System.out.print("\n[Notifcn]: " + df.format(new Date()) + "--" + de.getEventName() + " occurred. \n\nSending emails to:\n");
+            System.out.print("\n[Notifcn]: " + df.format(new Date()) + "--" + de.getEventName() + " occurred. \n\n\tSending emails to:\n\t");
         }
-        //Properties properties = System.getProperties();
-        Properties properties = new Properties();
-        properties.put("mail.smtp.host", "mail.eastcor.com");
-        properties.put("mail.smtp.port", 25);
-        
-        //Session session = Session.getDefaultInstance(properties);
-        Session session = Session.getInstance(properties);
- 
+        Session session = Session.getInstance(FirebirdEventMaster.getInstance().config);
         List emails = new EmailEditor().getEmailsByEventName(eventName);
 
         for (Object recipient : emails) {

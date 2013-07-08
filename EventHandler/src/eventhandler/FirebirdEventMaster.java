@@ -5,14 +5,20 @@ import ehgui.EventEditor;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import org.firebirdsql.event.EventManager;
 import org.firebirdsql.event.FBEventManager;
 
@@ -27,12 +33,10 @@ public class FirebirdEventMaster {
         }
         return instance;
     }
-    private final String listenHost = "localhost";
-    private final int listenPort = 3050;
-    private final String listenUser = "gone";
-    private final String listenPass = "fishing";
-    private final String listenDatabase = "C:\\EASTCOR.FDB";
+    private static String listenHost, listenUser, listenPass, listenDatabase, eventHost, eventUser, eventPass, eventDatabase;
+    private static int listenPort, eventPort;
     public static EventManager em = new FBEventManager();
+    public static Properties config = new Properties();
     public final JFrame parent = new JFrame();
 
     /**
@@ -41,6 +45,31 @@ public class FirebirdEventMaster {
      *
      */
     protected FirebirdEventMaster() {
+
+
+        config = new Properties();
+        try {
+            InputStream file = Thread.currentThread().getContextClassLoader().getResourceAsStream("CONFIG.properties");
+            config.load(file);
+            listenHost = config.getProperty("listenHost", "localhost");
+            listenPort = Integer.parseInt(config.getProperty("listenPort", "3050"));
+            listenUser = config.getProperty("listenUser", "gone");
+            listenPass = config.getProperty("listenPass", "fishing");
+            listenDatabase = config.getProperty("listenDatabase", "C:\\EASTCOR.FDB");
+
+            eventHost = config.getProperty("eventHost", "localhost");
+            eventPort = Integer.parseInt(config.getProperty("eventPort", "3050"));
+            eventUser = config.getProperty("eventUser", "sysdba");
+            eventPass = config.getProperty("eventPass", "masterkey");
+            eventDatabase = config.getProperty("eventDatabase", "C:\\EVENTS.FDB");
+            if (Driver.DEBUGGING) {
+                System.out.println("Config file loaded:\nlistenHost=" + listenHost + "\nlistenPort=" + listenPort + "\nlistenUser=" + listenUser + "\nlistenPass=" + listenPass + "\nlistenDatabase=" + listenDatabase);
+                System.out.println("\neventHost=" + eventHost + "\neventPort=" + eventPort + "\neventUser=" + eventUser + "\neventPass=" + eventPass + "\neventDatabase=" + eventDatabase);
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(FirebirdEventMaster.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
 
         try {
             em.setHost(listenHost);
@@ -60,10 +89,14 @@ public class FirebirdEventMaster {
             createGUI();
 
         } catch (SQLException ex) {
-            System.out.println("There was an error connecting to the firebird database.");
+            JOptionPane.showMessageDialog(parent,
+                    "There was an error connecting to the Firebird database. Please make sure the information below is correct and the server is up and running.\n\n\n"
+                    + "listenHost=" + listenHost + "\nlistenPort=" + listenPort + "\nlistenUser=" + listenUser + "\nlistenPass=" + listenPass + "\nlistenDatabase=" + listenDatabase,
+                    "Database error!",
+                    JOptionPane.ERROR_MESSAGE);
             Logger.getLogger(FirebirdEventMaster.class.getName()).log(Level.SEVERE, null, ex);
         } catch (AWTException ex) {
-            System.out.println("There was an error creating the system tray icon.");
+            System.out.println("There was an error creating the system tray icon:");
             Logger.getLogger(FirebirdEventMaster.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
@@ -119,5 +152,4 @@ public class FirebirdEventMaster {
         icon.setImageAutoSize(true);
         systray.add(icon);
     }
-
 }
