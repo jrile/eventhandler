@@ -5,10 +5,9 @@ import ehgui.EventEditor;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Properties;
@@ -28,6 +27,8 @@ public class FirebirdEventMaster {
     private static FirebirdEventMaster instance = null;
 
     public static FirebirdEventMaster getInstance() {
+
+
         if (instance == null) {
             instance = new FirebirdEventMaster();
         }
@@ -35,7 +36,7 @@ public class FirebirdEventMaster {
     }
     private static String listenHost, listenUser, listenPass, listenDatabase, eventHost, eventUser, eventPass, eventDatabase;
     private static int listenPort, eventPort;
-    public static EventManager em = new FBEventManager();
+    public EventManager em = new FBEventManager();
     public static Properties config = new Properties();
     public final JFrame parent = new JFrame();
 
@@ -46,15 +47,15 @@ public class FirebirdEventMaster {
      */
     protected FirebirdEventMaster() {
 
-
         config = new Properties();
         try {
             InputStream file = Thread.currentThread().getContextClassLoader().getResourceAsStream("CONFIG.properties");
+            //InputStream file = new FileInputStream("./CONFIG.properties");
             config.load(file);
             listenHost = config.getProperty("listenHost", "localhost");
             listenPort = Integer.parseInt(config.getProperty("listenPort", "3050"));
-            listenUser = config.getProperty("listenUser", "gone");
-            listenPass = config.getProperty("listenPass", "fishing");
+            listenUser = config.getProperty("listenUser", "sysdba");
+            listenPass = config.getProperty("listenPass", "masterkey");
             listenDatabase = config.getProperty("listenDatabase", "C:\\EASTCOR.FDB");
 
             eventHost = config.getProperty("eventHost", "localhost");
@@ -66,11 +67,10 @@ public class FirebirdEventMaster {
                 System.out.println("Config file loaded:\nlistenHost=" + listenHost + "\nlistenPort=" + listenPort + "\nlistenUser=" + listenUser + "\nlistenPass=" + listenPass + "\nlistenDatabase=" + listenDatabase);
                 System.out.println("\neventHost=" + eventHost + "\neventPort=" + eventPort + "\neventUser=" + eventUser + "\neventPass=" + eventPass + "\neventDatabase=" + eventDatabase);
             }
+
         } catch (IOException ex) {
             Logger.getLogger(FirebirdEventMaster.class.getName()).log(Level.SEVERE, null, ex);
         }
-
-
         try {
             em.setHost(listenHost);
             em.setPort(listenPort);
@@ -87,7 +87,6 @@ public class FirebirdEventMaster {
                 em.addEventListener(event.toString(), event);
             }
             createGUI();
-
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(parent,
                     "There was an error connecting to the Firebird database. Please make sure the information below is correct and the server is up and running.\n\n\n"
@@ -107,7 +106,8 @@ public class FirebirdEventMaster {
      * @throws AWTException If there is an error creating the system tray icon.
      */
     private void createGUI() throws AWTException {
-        Image image = new ImageIcon("./firebird.png").getImage();
+        URL file = Thread.currentThread().getContextClassLoader().getResource("images/firebird.png");             
+        Image image = new ImageIcon(file).getImage();
         parent.setTitle("Firebird Event Handler");
         parent.setIconImage(image);
         SystemTray systray = SystemTray.getSystemTray();
@@ -115,7 +115,6 @@ public class FirebirdEventMaster {
         MenuItem eventsMenu = new MenuItem("Edit event calls");
         menu.add(eventsMenu);
         eventsMenu.addActionListener(new ActionListener() {
-
             @Override
             public void actionPerformed(ActionEvent e) {
                 parent.setContentPane(new EventEditor());
@@ -123,7 +122,6 @@ public class FirebirdEventMaster {
                 parent.setVisible(true);
             }
         });
-
         MenuItem emails = new MenuItem("Edit email notifications");
         menu.add(emails);
         emails.addActionListener(new ActionListener() {
@@ -135,9 +133,7 @@ public class FirebirdEventMaster {
                 parent.setVisible(true);
             }
         });
-
         menu.addSeparator();
-
         MenuItem exit = new MenuItem("Exit");
         menu.add(exit);
         exit.addActionListener(new ActionListener() {
@@ -147,7 +143,6 @@ public class FirebirdEventMaster {
                 System.exit(0);
             }
         });
-
         TrayIcon icon = new TrayIcon(image, "Firebird Event Listener", menu);
         icon.setImageAutoSize(true);
         systray.add(icon);

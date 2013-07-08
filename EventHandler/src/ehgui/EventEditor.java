@@ -4,22 +4,23 @@
  */
 package ehgui;
 
+import eventhandler.FirebirdEventMaster;
 import java.awt.EventQueue;
 import java.beans.Beans;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import javax.persistence.RollbackException;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import eventhandler.FirebirdEventMaster;
-import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.persistence.RollbackException;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+
 
 /**
  *
- * @author colgado
+ * @author jrile
  */
 public class EventEditor extends JPanel {
 
@@ -50,10 +51,14 @@ public class EventEditor extends JPanel {
         emailTitleLabel = new javax.swing.JLabel();
         emailTextLabel = new javax.swing.JLabel();
         senderEmailLabel = new javax.swing.JLabel();
+        purchaseOrderLabel = new javax.swing.JLabel();
+        attachPurchaseOrderReportLabel = new javax.swing.JLabel();
         eventNameField = new javax.swing.JTextField();
         emailTitleField = new javax.swing.JTextField();
         emailTextField = new javax.swing.JTextField();
         senderEmailField = new javax.swing.JTextField();
+        purchaseOrderField = new javax.swing.JTextField();
+        attachPurchaseOrderReportField = new javax.swing.JTextField();
         saveButton = new javax.swing.JButton();
         refreshButton = new javax.swing.JButton();
         newButton = new javax.swing.JButton();
@@ -74,6 +79,12 @@ public class EventEditor extends JPanel {
         columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${senderEmail}"));
         columnBinding.setColumnName("Sender Email");
         columnBinding.setColumnClass(String.class);
+        columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${purchaseOrder}"));
+        columnBinding.setColumnName("Purchase Order");
+        columnBinding.setColumnClass(Short.class);
+        columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${attachPurchaseOrderReport}"));
+        columnBinding.setColumnName("Attach Purchase Order Report");
+        columnBinding.setColumnClass(Short.class);
         bindingGroup.addBinding(jTableBinding);
 
         masterScrollPane.setViewportView(masterTable);
@@ -85,6 +96,10 @@ public class EventEditor extends JPanel {
         emailTextLabel.setText("Email Text:");
 
         senderEmailLabel.setText("Sender Email:");
+
+        purchaseOrderLabel.setText("Purchase Order:");
+
+        attachPurchaseOrderReportLabel.setText("Attach Purchase Order Report:");
 
         org.jdesktop.beansbinding.Binding binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, masterTable, org.jdesktop.beansbinding.ELProperty.create("${selectedElement.eventName}"), eventNameField, org.jdesktop.beansbinding.BeanProperty.create("text"));
         binding.setSourceUnreadableValue(null);
@@ -104,12 +119,22 @@ public class EventEditor extends JPanel {
         binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ, masterTable, org.jdesktop.beansbinding.ELProperty.create("${selectedElement != null}"), emailTextField, org.jdesktop.beansbinding.BeanProperty.create("enabled"));
         bindingGroup.addBinding(binding);
 
-        senderEmailField.setText("noreply@eastcor.com");
-
         binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, masterTable, org.jdesktop.beansbinding.ELProperty.create("${selectedElement.senderEmail}"), senderEmailField, org.jdesktop.beansbinding.BeanProperty.create("text"));
         binding.setSourceUnreadableValue(null);
         bindingGroup.addBinding(binding);
         binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ, masterTable, org.jdesktop.beansbinding.ELProperty.create("${selectedElement != null}"), senderEmailField, org.jdesktop.beansbinding.BeanProperty.create("enabled"));
+        bindingGroup.addBinding(binding);
+
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, masterTable, org.jdesktop.beansbinding.ELProperty.create("${selectedElement.purchaseOrder}"), purchaseOrderField, org.jdesktop.beansbinding.BeanProperty.create("text"));
+        binding.setSourceUnreadableValue(null);
+        bindingGroup.addBinding(binding);
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ, masterTable, org.jdesktop.beansbinding.ELProperty.create("${selectedElement != null}"), purchaseOrderField, org.jdesktop.beansbinding.BeanProperty.create("enabled"));
+        bindingGroup.addBinding(binding);
+
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, masterTable, org.jdesktop.beansbinding.ELProperty.create("${selectedElement.attachPurchaseOrderReport}"), attachPurchaseOrderReportField, org.jdesktop.beansbinding.BeanProperty.create("text"));
+        binding.setSourceUnreadableValue(null);
+        bindingGroup.addBinding(binding);
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ, masterTable, org.jdesktop.beansbinding.ELProperty.create("${selectedElement != null}"), attachPurchaseOrderReportField, org.jdesktop.beansbinding.BeanProperty.create("enabled"));
         bindingGroup.addBinding(binding);
 
         saveButton.setText("Save");
@@ -150,14 +175,21 @@ public class EventEditor extends JPanel {
                                     .addComponent(eventNameLabel)
                                     .addComponent(emailTitleLabel)
                                     .addComponent(emailTextLabel)
-                                    .addComponent(senderEmailLabel))
+                                    .addComponent(senderEmailLabel)
+                                    .addComponent(purchaseOrderLabel)
+                                    .addComponent(attachPurchaseOrderReportLabel))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(eventNameField, javax.swing.GroupLayout.DEFAULT_SIZE, 368, Short.MAX_VALUE)
-                                    .addComponent(emailTitleField, javax.swing.GroupLayout.DEFAULT_SIZE, 368, Short.MAX_VALUE)
-                                    .addComponent(emailTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 368, Short.MAX_VALUE)
-                                    .addComponent(senderEmailField, javax.swing.GroupLayout.DEFAULT_SIZE, 368, Short.MAX_VALUE)))
-                            .addComponent(masterScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 445, Short.MAX_VALUE))))
+                                    .addComponent(eventNameField, javax.swing.GroupLayout.DEFAULT_SIZE, 315, Short.MAX_VALUE)
+                                    .addComponent(emailTitleField, javax.swing.GroupLayout.DEFAULT_SIZE, 315, Short.MAX_VALUE)
+                                    .addComponent(emailTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 315, Short.MAX_VALUE)
+                                    .addComponent(senderEmailField, javax.swing.GroupLayout.DEFAULT_SIZE, 315, Short.MAX_VALUE)
+                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                        .addGap(0, 0, Short.MAX_VALUE)
+                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                            .addComponent(attachPurchaseOrderReportField, javax.swing.GroupLayout.DEFAULT_SIZE, 41, Short.MAX_VALUE)
+                                            .addComponent(purchaseOrderField)))))
+                            .addComponent(masterScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 380, Short.MAX_VALUE))))
                 .addContainerGap())
         );
 
@@ -167,7 +199,7 @@ public class EventEditor extends JPanel {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(masterScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 162, Short.MAX_VALUE)
+                .addComponent(masterScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 130, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(eventNameLabel)
@@ -179,11 +211,19 @@ public class EventEditor extends JPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(emailTextLabel)
-                    .addComponent(emailTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 83, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(emailTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(senderEmailLabel)
                     .addComponent(senderEmailField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(purchaseOrderLabel)
+                    .addComponent(purchaseOrderField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(attachPurchaseOrderReportLabel)
+                    .addComponent(attachPurchaseOrderReportField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(saveButton)
@@ -249,10 +289,16 @@ public class EventEditor extends JPanel {
     }//GEN-LAST:event_newButtonActionPerformed
 
     private void saveButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveButtonActionPerformed
+
         try {
             entityManager.getTransaction().commit();
             entityManager.getTransaction().begin();
         } catch (RollbackException rex) {
+            JOptionPane.showMessageDialog(FirebirdEventMaster.getInstance().parent,
+                    "There was an error inserting into the database. Please make sure the event name is unique and the values are correct.",
+                    "Database error!",
+                    JOptionPane.ERROR_MESSAGE);
+            //rex.printStackTrace();
             entityManager.getTransaction().begin();
             List<ehgui.Events> merged = new ArrayList<ehgui.Events>(list.size());
             for (ehgui.Events e : list) {
@@ -264,6 +310,8 @@ public class EventEditor extends JPanel {
         listen();
     }//GEN-LAST:event_saveButtonActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JTextField attachPurchaseOrderReportField;
+    private javax.swing.JLabel attachPurchaseOrderReportLabel;
     private javax.swing.JButton deleteButton;
     private javax.swing.JTextField emailTextField;
     private javax.swing.JLabel emailTextLabel;
@@ -276,6 +324,8 @@ public class EventEditor extends JPanel {
     private javax.swing.JScrollPane masterScrollPane;
     private javax.swing.JTable masterTable;
     private javax.swing.JButton newButton;
+    private javax.swing.JTextField purchaseOrderField;
+    private javax.swing.JLabel purchaseOrderLabel;
     private javax.persistence.Query query;
     private javax.swing.JButton refreshButton;
     private javax.swing.JButton saveButton;

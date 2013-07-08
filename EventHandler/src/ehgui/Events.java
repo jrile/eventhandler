@@ -13,28 +13,20 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import java.util.Properties;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.Table;
-import javax.persistence.Transient;
+import javax.persistence.*;
 import javax.swing.JOptionPane;
 import org.firebirdsql.event.DatabaseEvent;
 import org.firebirdsql.event.EventListener;
 
 /**
- * Events in the database, contains event name and email information to be sent out.
- * @author colgado
+ *
+ * @author jrile
  */
 @Entity
 @Table(name = "EVENTS", catalog = "", schema = "")
@@ -43,7 +35,9 @@ import org.firebirdsql.event.EventListener;
     @NamedQuery(name = "Events.findByEventName", query = "SELECT e FROM Events e WHERE e.eventName = :eventName"),
     @NamedQuery(name = "Events.findByEmailTitle", query = "SELECT e FROM Events e WHERE e.emailTitle = :emailTitle"),
     @NamedQuery(name = "Events.findByEmailText", query = "SELECT e FROM Events e WHERE e.emailText = :emailText"),
-    @NamedQuery(name = "Events.findBySenderEmail", query = "SELECT e FROM Events e WHERE e.senderEmail = :senderEmail")})
+    @NamedQuery(name = "Events.findBySenderEmail", query = "SELECT e FROM Events e WHERE e.senderEmail = :senderEmail"),
+    @NamedQuery(name = "Events.findByPurchaseOrder", query = "SELECT e FROM Events e WHERE e.purchaseOrder = :purchaseOrder"),
+    @NamedQuery(name = "Events.findByAttachPurchaseOrderReport", query = "SELECT e FROM Events e WHERE e.attachPurchaseOrderReport = :attachPurchaseOrderReport")})
 public class Events implements Serializable, EventListener {
 
     @Transient
@@ -59,10 +53,10 @@ public class Events implements Serializable, EventListener {
     private String emailText;
     @Column(name = "SENDER_EMAIL")
     private String senderEmail;
-        
-    
-
-    
+    @Column(name = "PURCHASE_ORDER")
+    private Short purchaseOrder;
+    @Column(name = "ATTACH_PURCHASE_ORDER_REPORT")
+    private Short attachPurchaseOrderReport;
 
     public Events() {
     }
@@ -98,6 +92,10 @@ public class Events implements Serializable, EventListener {
     public void setEmailText(String emailText) {
         String oldEmailText = this.emailText;
         this.emailText = emailText;
+        if(purchaseOrder==1 && attachPurchaseOrderReport==1) {
+            // attach report here
+            this.emailText+="\n\nblablabla";
+        }
         changeSupport.firePropertyChange("emailText", oldEmailText, emailText);
     }
 
@@ -111,6 +109,26 @@ public class Events implements Serializable, EventListener {
         changeSupport.firePropertyChange("senderEmail", oldSenderEmail, senderEmail);
     }
 
+    public Short getPurchaseOrder() {
+        return purchaseOrder;
+    }
+
+    public void setPurchaseOrder(Short purchaseOrder) {
+        Short oldPurchaseOrder = this.purchaseOrder;
+        this.purchaseOrder = purchaseOrder;
+        changeSupport.firePropertyChange("purchaseOrder", oldPurchaseOrder, purchaseOrder);
+    }
+
+    public Short getAttachPurchaseOrderReport() {
+        return attachPurchaseOrderReport;
+    }
+
+    public void setAttachPurchaseOrderReport(Short attachPurchaseOrderReport) {
+        Short oldAttachPurchaseOrderReport = this.attachPurchaseOrderReport;
+        this.attachPurchaseOrderReport = attachPurchaseOrderReport;
+        changeSupport.firePropertyChange("attachPurchaseOrderReport", oldAttachPurchaseOrderReport, attachPurchaseOrderReport);
+    }
+
     @Override
     public int hashCode() {
         int hash = 0;
@@ -120,19 +138,15 @@ public class Events implements Serializable, EventListener {
 
     @Override
     public boolean equals(Object object) {
+        // TODO: Warning - this method won't work in the case the id fields are not set
         if (!(object instanceof Events)) {
             return false;
         }
         Events other = (Events) object;
-        if ((this.eventName == null && other.eventName != null) || (this.eventName != null && !this.eventName.equalsIgnoreCase(other.eventName))) {
+        if ((this.eventName == null && other.eventName != null) || (this.eventName != null && !this.eventName.equals(other.eventName))) {
             return false;
         }
         return true;
-    }
-
-    @Override
-    public String toString() {
-        return eventName;
     }
 
     public void addPropertyChangeListener(PropertyChangeListener listener) {
@@ -151,30 +165,36 @@ public class Events implements Serializable, EventListener {
         }
         Session session = Session.getInstance(FirebirdEventMaster.getInstance().config);
         List emails = new EmailEditor().getEmailsByEventName(eventName);
-
-        for (Object recipient : emails) {
-            if (Driver.DEBUGGING) {
-                System.out.print(recipient.toString() + " ");
-            }
-            try {
-                MimeMessage msg = new MimeMessage(session);
-                msg.setFrom(new InternetAddress(senderEmail));
+        MimeMessage msg = new MimeMessage(session);
+        try {
+            msg.setFrom(new InternetAddress(senderEmail));
+            msg.setSubject(emailTitle);
+            msg.setText(emailText);
+            for (Object recipient : emails) {
+                if (Driver.DEBUGGING) {
+                    System.out.print(recipient.toString() + " ");
+                }
                 msg.addRecipient(Message.RecipientType.TO, new InternetAddress(
                         recipient.toString()));
-                msg.setSubject(emailTitle);
-                msg.setText(emailText);
-                Transport.send(msg);
-
-            } catch (MessagingException e) {
-                JOptionPane.showMessageDialog(FirebirdEventMaster.getInstance().parent,
-                        "Event " + eventName + " has occurred, but there was an error sending email to \'" + recipient + "\'.\n\nReason: " + e.getMessage(),
-                        "Email error!",
-                        JOptionPane.ERROR_MESSAGE);
-                e.printStackTrace();
             }
-        }
-        if(Driver.DEBUGGING) 
-            System.out.println("\n");
 
+            Transport.send(msg);
+
+        } catch (MessagingException e) {
+            JOptionPane.showMessageDialog(FirebirdEventMaster.getInstance().parent,
+                    "Event " + eventName + " has occurred, but there was an error sending the email(s).\n\nReason: " + e.getMessage(),
+                    "Email error!",
+                    JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        }
+
+        if (Driver.DEBUGGING) {
+            System.out.println("\n");
+        }
+    }
+
+    @Override
+    public String toString() {
+        return eventName;
     }
 }

@@ -3,17 +3,23 @@ commit;
 drop table events;
 drop table emails;
 
+create domain boolean
+as smallint
+check(value is null or value in (0,1));
 
 create table events (event_name varchar (50) primary key, 
 email_title varchar(50),
 email_text varchar(1000),
-sender_email varchar(50));
+sender_email varchar(50),
+purchase_order boolean,
+attach_purchase_order_report boolean
+);
 
 
 -- master/detail table was not working with composite PK, so I made a unique ID (generator below)
 create table emails (id integer primary key,
-event_name varchar (50),
-email_address varchar(50),
+event_name varchar (50) not null,
+email_address varchar(50) not null,
 unique(event_name, email_address));
 
 create generator gen_email_id;
@@ -26,4 +32,3 @@ begin
 if (new.id is null) then new.id = gen_id(gen_email_id, 1);
 end^
 set term ; ^				
-
