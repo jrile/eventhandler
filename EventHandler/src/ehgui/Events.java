@@ -6,10 +6,16 @@ package ehgui;
 
 import eventhandler.Driver;
 import eventhandler.FirebirdEventMaster;
+import java.awt.Dimension;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.io.File;
+import java.io.PrintWriter;
 import java.io.Serializable;
-import java.sql.*;
+import java.io.StringWriter;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -20,7 +26,6 @@ import javax.activation.DataHandler;
 import javax.activation.DataSource;
 import javax.activation.FileDataSource;
 import javax.mail.Message;
-import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
@@ -28,8 +33,10 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import javax.persistence.*;
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
-import net.sf.jasperreports.engine.JRException;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import net.sf.jasperreports.engine.JasperExportManager;
 import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
@@ -133,7 +140,6 @@ public class Events implements Serializable, EventListener {
 
     @Override
     public boolean equals(Object object) {
-        // TODO: Warning - this method won't work in the case the id fields are not set
         if (!(object instanceof Events)) {
             return false;
         }
@@ -158,13 +164,13 @@ public class Events implements Serializable, EventListener {
             DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
             System.out.print("\n[Notifcn]: " + df.format(new Date()) + "--" + de.getEventName() + " occurred. \n\n\tSending emails to:\n\t");
         }
-        Session session = Session.getInstance(FirebirdEventMaster.getInstance().config);
+        Session session = Session.getInstance(FirebirdEventMaster.config);
         List emails = new EmailEditor().getEmailsByEventName(eventName);
         MimeMessage msg = new MimeMessage(session);
+        int recordId = 0;
         try {
             MimeMultipart mp = new MimeMultipart();
             if (attachPurchaseOrderReport == 1) {
-                
                 Connection listenConn = FirebirdEventMaster.getInstance().getConnection();
                 String query = "select recordid from eventreports where eventname = ? order by id desc";
                 PreparedStatement getPONumber = listenConn.prepareStatement(query);
@@ -172,29 +178,23 @@ public class Events implements Serializable, EventListener {
                 ResultSet rs = getPONumber.executeQuery();
                 rs.next();  //get latest occurrence of event
                 Map params = new HashMap();
-                int recordId = rs.getInt(1);
-                System.out.println(recordId);
+                recordId = rs.getInt(1);
                 params.put("poNum", recordId);
-                JasperPrint report = JasperFillManager.fillReport("C:\\Program Files (x86)\\Fishbowl\\server\\reports\\Custom\\POReport.jasper", params, listenConn);
+                JasperPrint report = JasperFillManager.fillReport(FirebirdEventMaster.getInstance().getPoReportPath(), params, listenConn);
                 JasperExportManager.exportReportToPdfFile(report, recordId + "_report.pdf");
-                
                 MimeBodyPart attachment = new MimeBodyPart();
                 DataSource ds = new FileDataSource(recordId + "_report.pdf");
                 attachment.setDataHandler(new DataHandler(ds));
                 attachment.setFileName(recordId + "_report.pdf");
                 mp.addBodyPart(attachment);
-
-
             }
-
-
             MimeBodyPart textPart = new MimeBodyPart();
             textPart.setText(emailText);
             mp.addBodyPart(textPart);
             msg.setContent(mp);
             msg.setFrom(new InternetAddress(senderEmail));
             msg.setSubject(emailTitle);
-            
+
             for (Object recipient : emails) {
                 if (Driver.DEBUGGING) {
                     System.out.print(recipient.toString() + " ");
@@ -202,28 +202,32 @@ public class Events implements Serializable, EventListener {
                 msg.addRecipient(Message.RecipientType.TO, new InternetAddress(
                         recipient.toString()));
             }
-
             Transport.send(msg);
-
-        } catch (MessagingException e) {
-            JOptionPane.showMessageDialog(FirebirdEventMaster.getInstance().parent,
-                    "Event " + eventName + " has occurred, but there was an error sending the email(s).\n\nReason: " + e.getMessage(),
-                    "Email error!",
+        } catch (Exception e) {
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            e.printStackTrace(pw);
+            JFrame temp = new JFrame();
+            temp.setAlwaysOnTop(true);
+            temp.setVisible(true);
+            temp.setTitle("Email error!");
+            JTextArea error = new JTextArea("Event " + eventName + " has occurred, but there was an error.\n\n\nStack:\n"+sw.toString());
+            error.setLineWrap(true);
+            error.setWrapStyleWord(true);
+            JScrollPane sp = new JScrollPane(error);
+            sp.setPreferredSize(new Dimension(400,300));
+            JOptionPane.showMessageDialog(temp,
+                    sp,
+                    "Event Listener Error!",
                     JOptionPane.ERROR_MESSAGE);
-            e.printStackTrace();
-        } catch (JRException e) {
-            JOptionPane.showMessageDialog(FirebirdEventMaster.getInstance().parent,
-                    "Event " + eventName + " has occurred, but there was an error creating the report.\n\nReason: " + e.getMessage(),
-                    "Report error!",
-                    JOptionPane.ERROR_MESSAGE);
-        } catch (SQLException e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(FirebirdEventMaster.getInstance().parent,
-                    "Event " + eventName + " has occurred, but there was an error with the database.\n\nReason: " + e.getMessage(),
-                    "Database error!",
-                    JOptionPane.ERROR_MESSAGE);
-        } 
-
+            temp.dispose();
+        } finally {
+            if (attachPurchaseOrderReport == 1) {
+                // delete report locally after it has been sent.
+                File file = new File(recordId + "_report.pdf");
+                file.delete();
+            }
+        }
         if (Driver.DEBUGGING) {
             System.out.println("\n");
         }

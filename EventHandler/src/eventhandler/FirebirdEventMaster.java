@@ -11,9 +11,7 @@ import java.net.URL;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -38,7 +36,7 @@ public class FirebirdEventMaster {
         }
         return instance;
     }
-    private static String listenHost, listenUser, listenPass, listenDatabase, eventHost, eventUser, eventPass, eventDatabase;
+    private static String listenHost, listenUser, listenPass, listenDatabase, eventHost, eventUser, eventPass, eventDatabase, poReportPath;
     private static int listenPort, eventPort;
     public EventManager em = new FBEventManager();
     public static Properties config = new Properties();
@@ -67,18 +65,19 @@ public class FirebirdEventMaster {
             eventUser = config.getProperty("eventUser", "sysdba");
             eventPass = config.getProperty("eventPass", "masterkey");
             eventDatabase = config.getProperty("eventDatabase", "C:\\EVENTS.FDB");
+            poReportPath = config.getProperty("poreportpath", "C:\\Program Files (x86)\\Fishbowl\\server\\reports\\Custom\\POReport.jasper");
             if (Driver.DEBUGGING) {
                 System.out.println("Config file loaded:\nlistenHost=" + listenHost + "\nlistenPort=" + listenPort + "\nlistenUser=" + listenUser + "\nlistenPass=" + listenPass + "\nlistenDatabase=" + listenDatabase);
                 System.out.println("\neventHost=" + eventHost + "\neventPort=" + eventPort + "\neventUser=" + eventUser + "\neventPass=" + eventPass + "\neventDatabase=" + eventDatabase);
             }
-            
-            connection =  DriverManager.getConnection("jdbc:firebirdsql:localhost/3050:c:/EASTCOR.fdb", listenUser, listenPass);
+
+            connection = DriverManager.getConnection("jdbc:firebirdsql:localhost/3050:c:/EASTCOR.fdb", listenUser, listenPass);
             connection.setAutoCommit(false);
 
         } catch (IOException ex) {
             Logger.getLogger(FirebirdEventMaster.class.getName()).log(Level.SEVERE, null, ex);
         } catch (SQLException ex) {
-            Logger.getLogger(FirebirdEventMaster.class.getName()).log(Level.SEVERE,null,ex);
+            Logger.getLogger(FirebirdEventMaster.class.getName()).log(Level.SEVERE, null, ex);
         }
         try {
             em.setHost(listenHost);
@@ -110,13 +109,14 @@ public class FirebirdEventMaster {
             Logger.getLogger(FirebirdEventMaster.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
-    
+
     public Connection getConnection() {
         return connection;
     }
-    
 
+    public String getPoReportPath() {
+        return poReportPath;
+    }
 
     /**
      * Creates a parent frame and a system tray icon with a menu.
@@ -126,6 +126,7 @@ public class FirebirdEventMaster {
     private void createGUI() throws AWTException {
         URL file = Thread.currentThread().getContextClassLoader().getResource("images/firebird.png");
         Image image = new ImageIcon(file).getImage();
+        parent.setAlwaysOnTop(true);
         parent.setTitle("Firebird Event Handler");
         parent.setIconImage(image);
         SystemTray systray = SystemTray.getSystemTray();
