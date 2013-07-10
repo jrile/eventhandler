@@ -5,17 +5,23 @@ import ehgui.EventEditor;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 import javax.persistence.Query;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -24,89 +30,127 @@ import org.firebirdsql.event.EventManager;
 import org.firebirdsql.event.FBEventManager;
 
 public class FirebirdEventMaster {
-    // singleton:
 
+    public static Properties config = new Properties();
+    public final static JFrame parent = new JFrame();
+    private static String listenHost, listenUser, listenPass, listenDatabase, eventHost, eventUser, eventPass, eventDatabase, poReportPath;
+    private static int listenPort, eventPort;
+    private EventManager em = new FBEventManager();
+    private Connection connection;
+    public EntityManager entityManager;
     private static FirebirdEventMaster instance = null;
 
     public static FirebirdEventMaster getInstance() {
-
-
         if (instance == null) {
-            instance = new FirebirdEventMaster();
+            try {
+                instance = new FirebirdEventMaster();
+            } catch (SQLException ex) {
+                JOptionPane.showMessageDialog(parent,
+                        "There was an error connecting to the Firebird database. Please make sure the information below is correct and the server is up and running.\n\n\n"
+                        + "listenHost=" + listenHost + "\nlistenPort=" + listenPort + "\nlistenUser=" + listenUser + "\nlistenPass=" + listenPass + "\nlistenDatabase=" + listenDatabase,
+                        "Database error!",
+                        JOptionPane.ERROR_MESSAGE);
+                System.exit(1);
+            }
         }
         return instance;
     }
-    private static String listenHost, listenUser, listenPass, listenDatabase, eventHost, eventUser, eventPass, eventDatabase, poReportPath;
-    private static int listenPort, eventPort;
-    public EventManager em = new FBEventManager();
-    public static Properties config = new Properties();
-    public final JFrame parent = new JFrame();
-    private Connection connection;
 
     /**
      * Constructs an event master to handle all of the events and listen for
      * them.
      *
      */
-    protected FirebirdEventMaster() {
-
+    protected FirebirdEventMaster() throws SQLException {
         config = new Properties();
         try {
-            InputStream file = Thread.currentThread().getContextClassLoader().getResourceAsStream("CONFIG.properties");
-            config.load(file);
-            listenHost = config.getProperty("listenHost", "localhost");
-            listenPort = Integer.parseInt(config.getProperty("listenPort", "3050"));
-            listenUser = config.getProperty("listenUser", "sysdba");
-            listenPass = config.getProperty("listenPass", "masterkey");
-            listenDatabase = config.getProperty("listenDatabase", "C:\\EASTCOR.FDB");
-
-            eventHost = config.getProperty("eventHost", "localhost");
-            eventPort = Integer.parseInt(config.getProperty("eventPort", "3050"));
-            eventUser = config.getProperty("eventUser", "sysdba");
-            eventPass = config.getProperty("eventPass", "masterkey");
-            eventDatabase = config.getProperty("eventDatabase", "C:\\EVENTS.FDB");
-            poReportPath = config.getProperty("poreportpath", "C:\\Program Files (x86)\\Fishbowl\\server\\reports\\Custom\\POReport.jasper");
-            if (Driver.DEBUGGING) {
-                System.out.println("Config file loaded:\nlistenHost=" + listenHost + "\nlistenPort=" + listenPort + "\nlistenUser=" + listenUser + "\nlistenPass=" + listenPass + "\nlistenDatabase=" + listenDatabase);
-                System.out.println("\neventHost=" + eventHost + "\neventPort=" + eventPort + "\neventUser=" + eventUser + "\neventPass=" + eventPass + "\neventDatabase=" + eventDatabase);
-            }
-
-            connection = DriverManager.getConnection("jdbc:firebirdsql:localhost/3050:c:/EASTCOR.fdb", listenUser, listenPass);
-            connection.setAutoCommit(false);
-
-        } catch (IOException ex) {
-            Logger.getLogger(FirebirdEventMaster.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (SQLException ex) {
-            Logger.getLogger(FirebirdEventMaster.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        try {
-            em.setHost(listenHost);
-            em.setPort(listenPort);
-            em.setUser(listenUser);
-            em.setPassword(listenPass);
-            em.setDatabase(listenDatabase);
-            em.connect();
-
-
-
-            EntityManager entityManager = javax.persistence.Persistence.createEntityManagerFactory("events.fdbPU").createEntityManager();
-            Query query = entityManager.createQuery("SELECT e FROM Events e");
-            List<ehgui.Events> list = org.jdesktop.observablecollections.ObservableCollections.observableList(query.getResultList());
-            for (ehgui.Events event : list) {
-                em.removeEventListener(event.toString(), event);
-                em.addEventListener(event.toString(), event);
-            }
+            InputStream file = new FileInputStream("CONFIG.properties");
             createGUI();
-        } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(parent,
-                    "There was an error connecting to the Firebird database. Please make sure the information below is correct and the server is up and running.\n\n\n"
-                    + "listenHost=" + listenHost + "\nlistenPort=" + listenPort + "\nlistenUser=" + listenUser + "\nlistenPass=" + listenPass + "\nlistenDatabase=" + listenDatabase,
-                    "Database error!",
-                    JOptionPane.ERROR_MESSAGE);
-            Logger.getLogger(FirebirdEventMaster.class.getName()).log(Level.SEVERE, null, ex);
+            config.load(file);
+            loadProperties(config);
+
         } catch (AWTException ex) {
             System.out.println("There was an error creating the system tray icon:");
             Logger.getLogger(FirebirdEventMaster.class.getName()).log(Level.SEVERE, null, ex);
+
+        } catch (IOException ex) {
+            System.out.println("Properties file not found... creating default one.");
+            Properties defaultProps = new Properties();
+            defaultProps.setProperty("listenHost", "localhost");
+            defaultProps.setProperty("listenPort", "3050");
+            defaultProps.setProperty("listenUser", "sysdba");
+            defaultProps.setProperty("listenPass", "masterkey");
+            defaultProps.setProperty("listenDatabase", "C:\\listen.fdb");
+            defaultProps.setProperty("eventHost", "localhost");
+            defaultProps.setProperty("eventPort", "3050");
+            defaultProps.setProperty("eventUser", "sysdba");
+            defaultProps.setProperty("eventPass", "masterkey");
+            defaultProps.setProperty("eventDatabase", "C:\\events.fdb");
+            defaultProps.setProperty("mail.smtp.host", "localhost");
+            defaultProps.setProperty("mail.smtp.port", "25");
+            defaultProps.setProperty("poreportpath", "C:\\Program Files (x86)\\Fishbowl\\server\\reports\\Custom\\POReport.jasper");
+            try {
+                FileOutputStream out = new FileOutputStream("CONFIG.properties");
+                defaultProps.store(out, "Default Configuration For Firebird Event Listener\n\n- Make sure paths are escaped if necessary.\n- For the po report path, make sure it points to the .jasper file.");
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(parent,
+                        "There was an error writing the default configuration file. Proceeding with default values.",
+                        "Config file error!",
+                        JOptionPane.ERROR_MESSAGE);
+            } finally {
+                loadProperties(defaultProps);
+            }
+        }
+    }
+
+    private void loadProperties(Properties config) throws SQLException {
+        listenHost = config.getProperty("listenHost", "localhost");
+        listenPort = Integer.parseInt(config.getProperty("listenPort", "3050"));
+        listenUser = config.getProperty("listenUser", "sysdba");
+        listenPass = config.getProperty("listenPass", "masterkey");
+        listenDatabase = config.getProperty("listenDatabase", "C:\\listen.fdb");
+        eventHost = config.getProperty("eventHost", "localhost");
+        eventPort = Integer.parseInt(config.getProperty("eventPort", "3050"));
+        eventUser = config.getProperty("eventUser", "sysdba");
+        eventPass = config.getProperty("eventPass", "masterkey");
+        eventDatabase = config.getProperty("eventDatabase", "C:\\EVENTS.FDB");
+        poReportPath = config.getProperty("poreportpath", "C:\\Program Files (x86)\\Fishbowl\\server\\reports\\Custom\\POReport.jasper");
+        if (Driver.DEBUGGING) {
+            System.out.println("Config file loaded:\nlistenHost=" + listenHost + "\nlistenPort=" + listenPort + "\nlistenUser=" + listenUser + "\nlistenPass=" + listenPass + "\nlistenDatabase=" + listenDatabase);
+            System.out.println("\neventHost=" + eventHost + "\neventPort=" + eventPort + "\neventUser=" + eventUser + "\neventPass=" + eventPass + "\neventDatabase=" + eventDatabase
+                    + "\npoReportPath=" + poReportPath + "\nmail.smtp.host=" + config.getProperty("mail.smtp.host") + "\nmail.smtp.port=" + config.getProperty("mail.smtp.port"));
+        }
+        connection = DriverManager.getConnection("jdbc:firebirdsql:" + listenHost + "/" + listenPort + ":" + listenDatabase, listenUser, listenPass);
+        connection.setAutoCommit(false);
+        em.setHost(listenHost);
+        em.setPort(listenPort);
+        em.setUser(listenUser);
+        em.setPassword(listenPass);
+        em.setDatabase(listenDatabase);
+        em.connect();
+
+        Map properties = new HashMap();
+        properties.put("javax.persistence.jdbc.url", "jdbc:firebirdsql:" + eventHost + "/" + eventPort + ":" + eventDatabase);
+        properties.put("javax.persistence.jdbc.user", eventUser);
+        properties.put("javax.persistence.jdbc.password", eventPass);
+        EntityManagerFactory emf = Persistence.createEntityManagerFactory("events.fdbPU", properties);
+        entityManager = (EntityManager) emf.createEntityManager();
+        
+        listen();
+
+
+    }
+
+    public void listen() {
+        Query query = entityManager.createQuery("SELECT e FROM Events e");
+        List<ehgui.Events> list = org.jdesktop.observablecollections.ObservableCollections.observableList(query.getResultList());
+        for (ehgui.Events event : list) {
+            try {
+                em.removeEventListener(event.toString(), event);
+                em.addEventListener(event.toString(), event);
+            } catch (SQLException ex) {
+                Logger.getLogger(FirebirdEventMaster.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
     }
 

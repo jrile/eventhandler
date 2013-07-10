@@ -26,7 +26,7 @@ public class EventEditor extends JPanel {
         if (!Beans.isDesignTime()) {
             entityManager.getTransaction().begin();
         }
-        listen();
+        FirebirdEventMaster.getInstance().listen();
     }
 
     /**
@@ -270,7 +270,6 @@ public class EventEditor extends JPanel {
             entityManager.getTransaction().commit();
             entityManager.getTransaction().begin();
         } catch (RollbackException rex) {
-            rex.printStackTrace();
             entityManager.getTransaction().begin();
             List<ehgui.Events> merged = new ArrayList<ehgui.Events>(list.size());
             for (ehgui.Events e : list) {
@@ -279,7 +278,7 @@ public class EventEditor extends JPanel {
             list.clear();
             list.addAll(merged);
         }
-        listen();
+        FirebirdEventMaster.getInstance().listen();
     }//GEN-LAST:event_saveButtonActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -304,15 +303,8 @@ public class EventEditor extends JPanel {
     private javax.swing.JLabel senderEmailLabel;
     private org.jdesktop.beansbinding.BindingGroup bindingGroup;
     // End of variables declaration//GEN-END:variables
-    private void listen() {
-        for (ehgui.Events event : list) {
-            try {
-                FirebirdEventMaster.getInstance().em.removeEventListener(event.toString(), event);
-                FirebirdEventMaster.getInstance().em.addEventListener(event.toString(), event);
-            } catch (SQLException ex) {
-                Logger.getLogger(EventEditor.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
+
+    public void setEntityManager(javax.persistence.EntityManager em) {
+        entityManager = em;
     }
-    
 }
