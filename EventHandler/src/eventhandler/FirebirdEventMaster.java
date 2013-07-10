@@ -19,15 +19,13 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
-import javax.persistence.Query;
+import javax.persistence.*;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import org.firebirdsql.event.EventManager;
 import org.firebirdsql.event.FBEventManager;
+import org.firebirdsql.gds.GDSException;
 
 public class FirebirdEventMaster {
 
@@ -37,8 +35,8 @@ public class FirebirdEventMaster {
     private static int listenPort, eventPort;
     private EventManager em = new FBEventManager();
     private Connection connection;
-    public EntityManager entityManager;
     private static FirebirdEventMaster instance = null;
+    private EntityManagerFactory emf;
 
     public static FirebirdEventMaster getInstance() {
         if (instance == null) {
@@ -134,18 +132,28 @@ public class FirebirdEventMaster {
         properties.put("javax.persistence.jdbc.user", eventUser);
         properties.put("javax.persistence.jdbc.password", eventPass);
         properties.put("javax.persistence.jdbc.driver", "org.firebirdsql.jdbc.FBDriver");
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory("events.fdbPU", properties);
-        entityManager = (EntityManager) emf.createEntityManager();
-        
+        emf = Persistence.createEntityManagerFactory("events.fdbPU", properties);
         listen();
 
 
     }
-    
-    
+
+    public EntityManager getEntityManager() {
+        EntityManager temp = null;
+        try {
+            temp = emf.createEntityManager();
+        } catch (PersistenceException e) {
+            JOptionPane.showMessageDialog(parent,
+                    "There was an error connecting to the Firebird event database! Please make sure all settings are correct.",
+                    "Database error!",
+                    JOptionPane.ERROR_MESSAGE);
+            System.exit(1);
+        }
+        return temp;
+    }
 
     public void listen() {
-        Query query = entityManager.createQuery("SELECT e FROM Events e");
+        Query query = getEntityManager().createQuery("SELECT e FROM Events e");
         List<ehgui.Events> list = org.jdesktop.observablecollections.ObservableCollections.observableList(query.getResultList());
         for (ehgui.Events event : list) {
             try {
