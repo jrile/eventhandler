@@ -158,13 +158,20 @@ public class Events implements Serializable, EventListener {
         changeSupport.removePropertyChangeListener(listener);
     }
 
+    /**
+     * Handles sending emails when an event occurs.
+     * If there is an error sending the message to any recipients, an error message 
+     * will appear and the message will not send. 
+     * Attachs report if desired.
+     * @param de Unused
+     */
     @Override
     public void eventOccurred(DatabaseEvent de) {
         if (Driver.DEBUGGING) {
             DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
             System.out.print("\n[Notifcn]: " + df.format(new Date()) + "--" + de.getEventName() + " occurred. \n\n\tSending emails to:\n\t");
         }
-        Session session = Session.getInstance(FirebirdEventMaster.config);
+        Session session = Session.getInstance(FirebirdEventMaster.getInstance().getConfig());
         List emails = new EmailEditor().getEmailsByEventName(eventName);
         MimeMessage msg = new MimeMessage(session);
         int recordId = 0;

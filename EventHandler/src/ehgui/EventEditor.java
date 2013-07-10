@@ -1,16 +1,9 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package ehgui;
 
 import eventhandler.FirebirdEventMaster;
 import java.beans.Beans;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.persistence.RollbackException;
 import javax.swing.JPanel;
 
@@ -304,7 +297,4 @@ public class EventEditor extends JPanel {
     private org.jdesktop.beansbinding.BindingGroup bindingGroup;
     // End of variables declaration
 
-    public void setEntityManager(javax.persistence.EntityManager em) {
-        entityManager = em;
-    }
 }

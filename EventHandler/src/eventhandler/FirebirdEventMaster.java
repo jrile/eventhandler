@@ -25,12 +25,11 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import org.firebirdsql.event.EventManager;
 import org.firebirdsql.event.FBEventManager;
-import org.firebirdsql.gds.GDSException;
 
 public class FirebirdEventMaster {
 
-    public static Properties config = new Properties();
     public final static JFrame parent = new JFrame();
+    private static Properties config = new Properties();
     private static String listenHost, listenUser, listenPass, listenDatabase, eventHost, eventUser, eventPass, eventDatabase, poReportPath;
     private static int listenPort, eventPort;
     private EventManager em = new FBEventManager();
@@ -38,6 +37,13 @@ public class FirebirdEventMaster {
     private static FirebirdEventMaster instance = null;
     private EntityManagerFactory emf;
 
+    /**
+     * Method to return the only instance of the Firebird Event Master. If the
+     * firebird event master hasn't been initialized yet (program has just
+     * started), initialize it. Return the single instance.
+     *
+     * @return Single instance of the Firebird event master
+     */
     public static FirebirdEventMaster getInstance() {
         if (instance == null) {
             try {
@@ -68,10 +74,15 @@ public class FirebirdEventMaster {
             loadProperties(config);
 
         } catch (AWTException ex) {
+            // If we get here, the system can not create a system tray
+            // Program currently is not functional without GUI.
             System.out.println("There was an error creating the system tray icon:");
             Logger.getLogger(FirebirdEventMaster.class.getName()).log(Level.SEVERE, null, ex);
+            System.exit(1);
 
         } catch (IOException ex) {
+            // if we get here, there was an error opening the config file. 
+            // create a generic default one.
             System.out.println("Properties file not found... creating default one.");
             Properties defaultProps = new Properties();
             defaultProps.setProperty("listenHost", "localhost");
@@ -101,6 +112,16 @@ public class FirebirdEventMaster {
         }
     }
 
+    /**
+     * Loads the configuration properties for the database and mail server. If
+     * one or more parameters do not appear in the configuration, they are set
+     * to the default value as described in the readme.
+     *
+     * @param config Properties file that should contain some or all
+     * configuration settings.
+     * @throws SQLException If there was an error connecting to the "listen"
+     * database.
+     */
     private void loadProperties(Properties config) throws SQLException {
         listenHost = config.getProperty("listenHost", "localhost");
         listenPort = Integer.parseInt(config.getProperty("listenPort", "3050"));
@@ -134,10 +155,15 @@ public class FirebirdEventMaster {
         properties.put("javax.persistence.jdbc.driver", "org.firebirdsql.jdbc.FBDriver");
         emf = Persistence.createEntityManagerFactory("events.fdbPU", properties);
         listen();
-
-
     }
 
+    /**
+     * Grabs a new entity manager from the entity manager factory. If there was
+     * an error connecting to the event database, displays an error message and
+     * quits.
+     *
+     * @return A newly created EntityManager
+     */
     public EntityManager getEntityManager() {
         EntityManager temp = null;
         try {
@@ -152,6 +178,19 @@ public class FirebirdEventMaster {
         return temp;
     }
 
+    /**
+     *
+     * @return The configuration properties file.
+     */
+    public Properties getConfig() {
+        return config;
+    }
+
+    /**
+     * Selects each event from the events database, iterates through them and
+     * adds an event listener for each. If there was an error connecting to the
+     * event database, displays an error message and quits.
+     */
     public void listen() {
         Query query = getEntityManager().createQuery("SELECT e FROM Events e");
         List<ehgui.Events> list = org.jdesktop.observablecollections.ObservableCollections.observableList(query.getResultList());
@@ -160,11 +199,20 @@ public class FirebirdEventMaster {
                 em.removeEventListener(event.toString(), event);
                 em.addEventListener(event.toString(), event);
             } catch (SQLException ex) {
-                Logger.getLogger(FirebirdEventMaster.class.getName()).log(Level.SEVERE, null, ex);
+                JOptionPane.showMessageDialog(parent,
+                        "There was an error connecting to the Firebird event database! Please make sure all settings are correct.",
+                        "Database error!",
+                        JOptionPane.ERROR_MESSAGE);
+                System.exit(1);
             }
         }
     }
 
+    /**
+     * Gets the connection for the "listen" database.
+     *
+     * @return "listen" database connection.
+     */
     public Connection getConnection() {
         return connection;
     }
