@@ -133,6 +133,7 @@ public class FirebirdEventMaster {
         properties.put("javax.persistence.jdbc.url", "jdbc:firebirdsql:" + eventHost + "/" + eventPort + ":" + eventDatabase);
         properties.put("javax.persistence.jdbc.user", eventUser);
         properties.put("javax.persistence.jdbc.password", eventPass);
+        properties.put("javax.persistence.jdbc.driver", "org.firebirdsql.jdbc.FBDriver");
         EntityManagerFactory emf = Persistence.createEntityManagerFactory("events.fdbPU", properties);
         entityManager = (EntityManager) emf.createEntityManager();
         
@@ -140,6 +141,8 @@ public class FirebirdEventMaster {
 
 
     }
+    
+    
 
     public void listen() {
         Query query = entityManager.createQuery("SELECT e FROM Events e");
