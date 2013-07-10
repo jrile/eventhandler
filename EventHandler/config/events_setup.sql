@@ -11,7 +11,6 @@ create table events (event_name varchar (50) primary key,
 email_title varchar(50),
 email_text varchar(1000),
 sender_email varchar(50),
-purchase_order boolean,
 attach_purchase_order_report boolean
 );
 

@@ -22,7 +22,6 @@ import javax.persistence.Query;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
-import net.sf.jasperreports.engine.*;
 import org.firebirdsql.event.EventManager;
 import org.firebirdsql.event.FBEventManager;
 
@@ -44,7 +43,7 @@ public class FirebirdEventMaster {
     public EventManager em = new FBEventManager();
     public static Properties config = new Properties();
     public final JFrame parent = new JFrame();
-    private Connection listenConn;
+    private Connection connection;
 
     /**
      * Constructs an event master to handle all of the events and listen for
@@ -56,7 +55,6 @@ public class FirebirdEventMaster {
         config = new Properties();
         try {
             InputStream file = Thread.currentThread().getContextClassLoader().getResourceAsStream("CONFIG.properties");
-            //InputStream file = new FileInputStream("./CONFIG.properties");
             config.load(file);
             listenHost = config.getProperty("listenHost", "localhost");
             listenPort = Integer.parseInt(config.getProperty("listenPort", "3050"));
@@ -73,9 +71,14 @@ public class FirebirdEventMaster {
                 System.out.println("Config file loaded:\nlistenHost=" + listenHost + "\nlistenPort=" + listenPort + "\nlistenUser=" + listenUser + "\nlistenPass=" + listenPass + "\nlistenDatabase=" + listenDatabase);
                 System.out.println("\neventHost=" + eventHost + "\neventPort=" + eventPort + "\neventUser=" + eventUser + "\neventPass=" + eventPass + "\neventDatabase=" + eventDatabase);
             }
+            
+            connection =  DriverManager.getConnection("jdbc:firebirdsql:localhost/3050:c:/EASTCOR.fdb", listenUser, listenPass);
+            connection.setAutoCommit(false);
 
         } catch (IOException ex) {
             Logger.getLogger(FirebirdEventMaster.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException ex) {
+            Logger.getLogger(FirebirdEventMaster.class.getName()).log(Level.SEVERE,null,ex);
         }
         try {
             em.setHost(listenHost);
@@ -84,14 +87,9 @@ public class FirebirdEventMaster {
             em.setPassword(listenPass);
             em.setDatabase(listenDatabase);
             em.connect();
-            
-            listenConn = DriverManager.getConnection("jdbc:firebirdsql:localhost/3050:c:/EASTCOR.fdb",listenUser,listenPass);
-            try {
-                jasper();
-            } catch (JRException ex) {
-                ex.printStackTrace();
-                System.exit(1);
-            }
+
+
+
             EntityManager entityManager = javax.persistence.Persistence.createEntityManagerFactory("events.fdbPU").createEntityManager();
             Query query = entityManager.createQuery("SELECT e FROM Events e");
             List<ehgui.Events> list = org.jdesktop.observablecollections.ObservableCollections.observableList(query.getResultList());
@@ -99,7 +97,7 @@ public class FirebirdEventMaster {
                 em.removeEventListener(event.toString(), event);
                 em.addEventListener(event.toString(), event);
             }
-            //createGUI();
+            createGUI();
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(parent,
                     "There was an error connecting to the Firebird database. Please make sure the information below is correct and the server is up and running.\n\n\n"
@@ -107,22 +105,18 @@ public class FirebirdEventMaster {
                     "Database error!",
                     JOptionPane.ERROR_MESSAGE);
             Logger.getLogger(FirebirdEventMaster.class.getName()).log(Level.SEVERE, null, ex);
-//        } catch (AWTException ex) {
-//            System.out.println("There was an error creating the system tray icon:");
-//            Logger.getLogger(FirebirdEventMaster.class.getName()).log(Level.SEVERE, null, ex);
-            }
+        } catch (AWTException ex) {
+            System.out.println("There was an error creating the system tray icon:");
+            Logger.getLogger(FirebirdEventMaster.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
     
-    public void jasper() throws JRException, SQLException {
-        Map params = new HashMap();
-        params.put("poNum", 745);
-        listenConn.setAutoCommit(false);
-//        JasperReport template = JasperCompileManager.compileReport(
-//      "C:\\Program Files (x86)\\Fishbowl\\server\\reports\\Custom\\POReport.jrxml");
-        JasperPrint report = JasperFillManager.fillReport("C:\\Program Files (x86)\\Fishbowl\\server\\reports\\Custom\\POReport.jasper", params, listenConn);
-        JasperExportManager.exportReportToPdfFile(report, "C:\\Users\\jrile\\Desktop\\test.pdf");
-
+    
+    public Connection getConnection() {
+        return connection;
     }
+    
+
 
     /**
      * Creates a parent frame and a system tray icon with a menu.
@@ -130,7 +124,7 @@ public class FirebirdEventMaster {
      * @throws AWTException If there is an error creating the system tray icon.
      */
     private void createGUI() throws AWTException {
-        URL file = Thread.currentThread().getContextClassLoader().getResource("images/firebird.png");             
+        URL file = Thread.currentThread().getContextClassLoader().getResource("images/firebird.png");
         Image image = new ImageIcon(file).getImage();
         parent.setTitle("Firebird Event Handler");
         parent.setIconImage(image);
@@ -139,6 +133,7 @@ public class FirebirdEventMaster {
         MenuItem eventsMenu = new MenuItem("Edit event calls");
         menu.add(eventsMenu);
         eventsMenu.addActionListener(new ActionListener() {
+
             @Override
             public void actionPerformed(ActionEvent e) {
                 parent.setContentPane(new EventEditor());
@@ -161,6 +156,7 @@ public class FirebirdEventMaster {
         MenuItem exit = new MenuItem("Exit");
         menu.add(exit);
         exit.addActionListener(new ActionListener() {
+
             @Override
             public void actionPerformed(ActionEvent e) {
                 System.exit(0);

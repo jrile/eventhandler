@@ -72,7 +72,6 @@
                                   <Component id="emailTitleLabel" alignment="0" min="-2" max="-2" attributes="0"/>
                                   <Component id="emailTextLabel" alignment="0" min="-2" max="-2" attributes="0"/>
                                   <Component id="senderEmailLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                                  <Component id="purchaseOrderLabel" alignment="0" min="-2" max="-2" attributes="0"/>
                                   <Component id="attachPurchaseOrderReportLabel" alignment="0" min="-2" max="-2" attributes="0"/>
                               </Group>
                               <EmptySpace min="-2" max="-2" attributes="0"/>
@@ -81,13 +80,7 @@
                                   <Component id="emailTitleField" alignment="0" pref="315" max="32767" attributes="0"/>
                                   <Component id="emailTextField" alignment="0" pref="315" max="32767" attributes="0"/>
                                   <Component id="senderEmailField" alignment="0" pref="315" max="32767" attributes="0"/>
-                                  <Group type="102" alignment="1" attributes="0">
-                                      <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
-                                      <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                                          <Component id="attachPurchaseOrderReportField" pref="41" max="32767" attributes="0"/>
-                                          <Component id="purchaseOrderField" max="32767" attributes="0"/>
-                                      </Group>
-                                  </Group>
+                                  <Component id="attachPurchaseOrderReportField" alignment="0" pref="315" max="32767" attributes="0"/>
                               </Group>
                           </Group>
                           <Component id="masterScrollPane" pref="380" max="32767" attributes="0"/>
@@ -122,11 +115,6 @@
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="senderEmailLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="senderEmailField" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace min="-2" max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="purchaseOrderLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="purchaseOrderField" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
@@ -172,12 +160,8 @@
                 <BindingParameter name="javax.swing.binding.ParameterKeys.COLUMN" value="3"/>
                 <BindingParameter name="javax.swing.binding.ParameterKeys.COLUMN_CLASS" value="String.class"/>
               </Subbinding>
-              <Subbinding sourcePath="${purchaseOrder}">
-                <BindingParameter name="javax.swing.binding.ParameterKeys.COLUMN" value="4"/>
-                <BindingParameter name="javax.swing.binding.ParameterKeys.COLUMN_CLASS" value="Short.class"/>
-              </Subbinding>
               <Subbinding sourcePath="${attachPurchaseOrderReport}">
-                <BindingParameter name="javax.swing.binding.ParameterKeys.COLUMN" value="5"/>
+                <BindingParameter name="javax.swing.binding.ParameterKeys.COLUMN" value="4"/>
                 <BindingParameter name="javax.swing.binding.ParameterKeys.COLUMN_CLASS" value="Short.class"/>
               </Subbinding>
             </BindingProperty>
@@ -207,11 +191,6 @@
     <Component class="javax.swing.JLabel" name="senderEmailLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="Sender Email:"/>
-      </Properties>
-    </Component>
-    <Component class="javax.swing.JLabel" name="purchaseOrderLabel">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="Purchase Order:"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="attachPurchaseOrderReportLabel">
@@ -249,14 +228,6 @@
           <Property name="incompletePathValue" type="java.lang.String" value="null"/>
         </BindingProperty>
         <BindingProperty name="enabled" source="masterTable" sourcePath="${selectedElement != null}" target="senderEmailField" targetPath="enabled" updateStrategy="1" immediately="false"/>
-      </BindingProperties>
-    </Component>
-    <Component class="javax.swing.JTextField" name="purchaseOrderField">
-      <BindingProperties>
-        <BindingProperty name="text" source="masterTable" sourcePath="${selectedElement.purchaseOrder}" target="purchaseOrderField" targetPath="text" updateStrategy="0" immediately="false">
-          <Property name="incompletePathValue" type="java.lang.String" value="null"/>
-        </BindingProperty>
-        <BindingProperty name="enabled" source="masterTable" sourcePath="${selectedElement != null}" target="purchaseOrderField" targetPath="enabled" updateStrategy="1" immediately="false"/>
       </BindingProperties>
     </Component>
     <Component class="javax.swing.JTextField" name="attachPurchaseOrderReportField">
