@@ -7,7 +7,7 @@ public class Driver {
      *
      * @param args Unused
      */
-    public static final boolean DEBUGGING = true;
+    public static final boolean DEBUGGING = false;
 
     public static void main(String[] args)  {
         FirebirdEventMaster.getInstance();
